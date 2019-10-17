@@ -1,0 +1,386 @@
+<main class="mdb-color lighten-5 py-4">
+  <div class="container white py-4 my-4">
+    <div class="row">
+
+      <div class="col-lg-4 col-md-6 py-1 my-1">
+        <h4 class="h4-responsive my-1 py-1">Phrase Category</h4>
+        <ul class="list-group">
+          <mat-radio-group [(value)]="selectedPhraseList" (change)="phraseChangeListener($event)">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <button class="btn btn-info waves-light" (click)="addCategoryModal.show(); prepareForm()" mdbWavesEffect>Add Category</button>
+
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let category of phraseCategories">
+              <mat-radio-button value="{{category.english}}">{{category.english}}</mat-radio-button>
+              <span class="badge badge-primary badge-pill">{{dataCounted[category.english+'quiz']}}</span>
+            </li>
+          </mat-radio-group>
+        </ul>
+      </div>
+
+      <div class="col py-1 my-1">
+        <h4 class="h4-responsive my-1 py-1">Content of {{selectedPhraseList}}</h4>
+        <div class="card">
+          <!-- ADD phrase QUIZ -->
+          <div class="card-header">
+            <h4 class="h4-responsive">Add Quiz About {{selectedPhraseList}} Phrase</h4>
+          </div>
+          <div class="card-body">
+            <form [formGroup]="phraseForm" (ngSubmit)="onSubmitPhrase()">
+              <!-- ROW 2.1 -->
+              <div class="row">
+                <!-- COL 2.2.1 -->
+                <div class="col">
+                  <div class="form-group">
+                    <label>Question Type</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="phraseType.invalid"></i>
+                    <mat-select class="form-control" formControlName="phraseType" (selectionChange)="phraseQuestionTypeChangeListener($event)"
+                      [disabled]="upload">
+                      <mat-option value="text">Multiple Choice (Text)</mat-option>
+                      <mat-option value="image">Multiple choice (Image)</mat-option>
+                      <mat-option value="boolean">True or False</mat-option>
+                    </mat-select>
+                  </div>
+                  <div class="form-group" *ngIf="selectedPhraseQuestionType == 'text'">
+                    <label>Question about {{selectedPhraseList}}</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="phraseQuestion.invalid"></i>
+                    <input type="text" class="form-control" formControlName="phraseQuestion" *ngIf="selectedPhraseQuestionType == 'text'">
+                  </div>
+                  <div class="form-group" *ngIf="selectedPhraseQuestionType == 'image'">
+                    <label>Question about {{selectedPhraseList}} (Upload an image)</label>
+                    <span class="green-text ml-1 pl-1" [hidden]="!errorPreviewState">
+                      <i class="fa fa-check"></i> {{errorPreview}}</span>
+                    <span class="red-text ml-1 pl-1" [hidden]="errorPreviewState">
+                      <i class="fa fa-times"></i> {{errorPreview}}</span>
+                    <input type="file" class="form-control" formControlName="phraseQuestion" (change)="fileChangeEvent($event)" accept="image/*"
+                      *ngIf="selectedPhraseQuestionType == 'image'">
+                  </div>
+                  <div class="form-group" *ngIf="selectedPhraseQuestionType == 'image'">
+                    <label>Preview & Crop</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="phraseQuestion.invalid"></i>
+                    <div class="row">
+                      <div class="col">
+                        <image-cropper [imageChangedEvent]="imageChangedEvent2" [maintainAspectRatio]="false" [aspectRatio]="4 / 3" [resizeToWidth]="300"
+                          format="png" (imageCropped)="imageCropped2($event)" (imageLoaded)="imageLoaded()" (loadImageFailed)="loadImageFailed()"></image-cropper>
+                      </div>
+                      <div class="col">
+                        <img class="img-fluid" [src]="croppedImage2" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group" *ngIf="selectedPhraseQuestionType == 'boolean'">
+                    <label>Question about {{selectedPhraseList}} (Make a statement)</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="phraseQuestion.invalid"></i>
+                    <input type="text" class="form-control" formControlName="phraseQuestion" *ngIf="selectedPhraseQuestionType == 'boolean'">
+                  </div>
+                  <div class="form-group" *ngIf="selectedPhraseQuestionType == 'text' || selectedPhraseQuestionType == 'image'">
+                    <label>Option 1 (Right Answer)</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="phraseAnswer.invalid"></i>
+                    <input type="text" class="form-control" formControlName="phraseAnswer" *ngIf="selectedPhraseQuestionType == 'text' || selectedPhraseQuestionType == 'image'">
+                  </div>
+                  <div class="form-group" *ngIf="selectedPhraseQuestionType == 'boolean'">
+                    <label>Right Answer</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="phraseAnswer.invalid"></i>
+                    <mat-radio-group [(value)]="selectedPhraseAnswer" class="form-control" formControlName="phraseAnswer" *ngIf="selectedPhraseQuestionType == 'boolean'">
+                      <mat-radio-button value="true">True</mat-radio-button>
+                      <br>
+                      <mat-radio-button value="false">False</mat-radio-button>
+                    </mat-radio-group>
+                  </div>
+                  <div class="form-group" *ngIf="selectedPhraseQuestionType == 'text' || selectedPhraseQuestionType == 'image'">
+                    <label>Option 2</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="phraseOption1.invalid"></i>
+                    <input type="text" class="form-control" formControlName="phraseOption1" *ngIf="selectedPhraseQuestionType == 'text' || selectedPhraseQuestionType == 'image'">
+                  </div>
+                  <div class="form-group" *ngIf="selectedPhraseQuestionType == 'text' || selectedPhraseQuestionType == 'image'">
+                    <label>Option 3</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="phraseOption2.invalid"></i>
+                    <input type="text" class="form-control" formControlName="phraseOption2" *ngIf="selectedPhraseQuestionType == 'text' || selectedPhraseQuestionType == 'image'">
+                  </div>
+                  <div class="form-group" *ngIf="selectedPhraseQuestionType == 'text' || selectedPhraseQuestionType == 'image'">
+                    <label>Option 4</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="phraseOption3.invalid"></i>
+                    <input type="text" class="form-control" formControlName="phraseOption3" *ngIf="selectedPhraseQuestionType == 'text' || selectedPhraseQuestionType == 'image'">
+                  </div>
+                  <div class="form-group">
+                    <label>Correction or Explanation</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="phraseCorrection.invalid"></i>
+                    <textarea type="text" class="form-control" formControlName="phraseCorrection"></textarea>
+                  </div>
+                  <div class="form-group">
+                    <button type="submit" class="btn btn-info waves-light" [disabled]="phraseForm.invalid || upload || uploaded" mdbWavesEffect>Submit</button>
+                    <button class="btn btn-outline-info waves-light" (click)="resetForm()" mdbWavesEffect>Reset</button>
+                  </div>
+                  <div class="form-group" *ngIf="upload">
+                    <p>Uploading ...</p>
+                  </div>
+                  <div class="form-group" *ngIf="uploaded">
+                    <p>Uploaded!</p>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <!-- phrase LIST -->
+          <div class="card-header">
+            <h4 class="h4-responsive">Questions About {{selectedPhraseList}}</h4>
+          </div>
+          <div class="card-body">
+            <!-- ROW 1.2 -->
+            <div *ngIf="phraseQuizzes?.length > 0; else loading" style="height: 650px; overflow:auto;">
+              <!-- COL 1.2.3 -->
+              <div *ngFor="let pq of phraseQuizzes">
+                <div class="card waves-light border border-info mt-2 pt-2" mdbWavesEffect>
+                  <a>
+                    <div class="card-body text-left" (click)="phraseQuizModal.show();">
+                      <p>Question Type : {{pq.type.charAt(0).toUpperCase()}}{{pq.type.slice(1)}}</p>
+                      <p *ngIf="pq.type == 'text' || pq.type == 'boolean'">{{pq.question}}</p>
+                      <img src="{{pq.question}}" class="img-fluid" *ngIf="pq.type == 'image'">
+                    </div>
+                  </a>
+                  <div class="card-footer">
+                    <a (click)="phrasesEditQuizModal.show(); setEditPhrases(pq);">
+                      <i class="fa fa-edit mx-1 px-1"></i>
+                    </a>
+                    <a (click)="phrasesDeleteQuizModal.show();">
+                      <i class="fa fa-trash mx-1 px-1"></i>
+                    </a>
+                  </div>
+                </div>
+                <!-- EDIT MODAL -->
+                <div mdbModal #phrasesEditQuizModal="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myBasicModalLabel"
+                  aria-hidden="true" [config]="{backdrop: false, ignoreBackdropClick: true}" style="overflow: auto">
+                  <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close pull-right" aria-label="Close" (click)="phrasesEditQuizModal.hide(); resetForm();">
+                          <span aria-hidden="true">×</span>
+                        </button>
+                        <h4 class="modal-title w-100 h4-responsive" id="myModalLabel">Detail</h4>
+                      </div>
+                      <div class="modal-body">
+                        <form [formGroup]="phraseForm">
+                          <div class="form-group" *ngIf="pq.type == 'text'">
+                            <label> Question </label>
+                            <i class="fa fa-check green-text ml-1 pl-1" [hidden]="phraseQuestion.invalid"></i>
+                            <input type="text" class="form-control" formControlName="phraseQuestion" *ngIf="pq.type == 'text'">
+                          </div>
+                          <div class="form-group" *ngIf="pq.type == 'image'">
+                            <label>{{pq.category}} Question (Upload an image)</label>
+                            <span class="green-text ml-1 pl-1" [hidden]="!errorPreviewState">
+                              <i class="fa fa-check"></i> {{errorPreview}}</span>
+                            <span class="red-text ml-1 pl-1" [hidden]="errorPreviewState">
+                              <i class="fa fa-times"></i> {{errorPreview}}</span>
+                            <input type="file" class="form-control" (change)="fileChangeEvent($event)" accept="image/*" *ngIf="pq.type == 'image'">
+                          </div>
+                          <div class="form-group" *ngIf="pq.type == 'image'">
+                            <label>Preview & Crop</label>
+                            <i class="fa fa-check green-text ml-1 pl-1" [hidden]="croppedImage2"></i>
+                            <div class="row">
+                              <div class="col">
+                                <image-cropper [imageChangedEvent]="imageChangedEvent2" [maintainAspectRatio]="false" [aspectRatio]="4 / 3" [resizeToWidth]="300"
+                                  format="png" (imageCropped)="imageCropped2($event)" (imageLoaded)="imageLoaded()" (loadImageFailed)="loadImageFailed()"></image-cropper>
+                              </div>
+                              <div class="col">
+                                <img class="img-fluid" [src]="croppedImage2" />
+                              </div>
+                            </div>
+                          </div>
+                          <div class="form-group" *ngIf="pq.type == 'boolean'">
+                            <label>{{pq.category}} Question (Make a statement)</label>
+                            <i class="fa fa-check green-text ml-1 pl-1" [hidden]="phraseQuestion.invalid"></i>
+                            <input type="text" class="form-control" formControlName="phraseQuestion" *ngIf="pq.type == 'boolean'">
+                          </div>
+                          <div class="form-group" *ngIf="pq.type == 'text' || pq.type == 'image'">
+                            <label>Option 1 (Right Answer)</label>
+                            <i class="fa fa-check green-text ml-1 pl-1" [hidden]="phraseAnswer.invalid"></i>
+                            <input type="text" class="form-control" formControlName="phraseAnswer" *ngIf="pq.type == 'text' || pq.type == 'image'">
+                          </div>
+                          <div class="form-group" *ngIf="pq.type == 'boolean'">
+                            <label>Right Answer</label>
+                            <i class="fa fa-check green-text ml-1 pl-1" [hidden]="phraseAnswer.invalid"></i>
+                            <mat-radio-group [(value)]="selectedPhraseAnswer" class="form-control" formControlName="phraseAnswer" *ngIf="pq.type == 'boolean'">
+                              <mat-radio-button value="true">True</mat-radio-button>
+                              <br>
+                              <mat-radio-button value="false">False</mat-radio-button>
+                            </mat-radio-group>
+                          </div>
+                          <div class="form-group" *ngIf="pq.type == 'text' || pq.type == 'image'">
+                            <label>Option 2</label>
+                            <i class="fa fa-check green-text ml-1 pl-1" [hidden]="phraseOption1.invalid"></i>
+                            <input type="text" class="form-control" formControlName="phraseOption1" *ngIf="pq.type == 'text' || pq.type == 'image'">
+                          </div>
+                          <div class="form-group" *ngIf="pq.type == 'text' || pq.type == 'image'">
+                            <label>Option 3</label>
+                            <i class="fa fa-check green-text ml-1 pl-1" [hidden]="phraseOption2.invalid"></i>
+                            <input type="text" class="form-control" formControlName="phraseOption2" *ngIf="pq.type == 'text' || pq.type == 'image'">
+                          </div>
+                          <div class="form-group" *ngIf="pq.type == 'text' || pq.type == 'image'">
+                            <label>Option 4</label>
+                            <i class="fa fa-check green-text ml-1 pl-1" [hidden]="phraseOption3.invalid"></i>
+                            <input type="text" class="form-control" formControlName="phraseOption3" *ngIf="pq.type == 'text' || pq.type == 'image'">
+                          </div>
+                          <div class="form-group">
+                            <label>Correction or Explanation</label>
+                            <i class="fa fa-check green-text ml-1 pl-1" [hidden]="phraseCorrection.invalid"></i>
+                            <textarea type="text" class="form-control" formControlName="phraseCorrection"></textarea>
+                          </div>
+                        </form>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary waves-light" aria-label="Close" (click)="updatePhrases($event, pq).then(phrasesEditQuizModal.hide());"
+                          mdbWavesEffect>Save</button>
+                        <button type="button" class="btn btn-secondary waves-light" aria-label="Close" (click)="phrasesEditQuizModal.hide(); resetForm();"
+                          mdbWavesEffect>Cancel</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- EDIT MODAL -->
+                <!-- DELETE MODAL -->
+                <div mdbModal #phrasesDeleteQuizModal="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myBasicModalLabel"
+                  aria-hidden="true" [config]="{backdrop: false, ignoreBackdropClick: true}" style="overflow: auto">
+                  <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close pull-right" aria-label="Close" (click)="phrasesDeleteQuizModal.hide(); resetForm();">
+                          <span aria-hidden="true">×</span>
+                        </button>
+                        <h4 class="modal-title w-100 h4-responsive" id="myModalLabel">Warning</h4>
+                      </div>
+                      <div class="modal-body">
+                        <p>Are you sure to Delete this quiz?</p>
+                      </div>
+                      <div class="modal-footer">
+                        <button class="btn btn-danger" (click)="deletePhrases($event, pq); phrasesDeleteQuizModal.hide()">Yes, delete</button>
+                        <button type="button" class="btn btn-secondary waves-light" aria-label="Close" (click)="phrasesDeleteQuizModal.hide(); resetForm();"
+                          mdbWavesEffect>Close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- DELETE MODAL -->
+                <!-- DETAIL MODAL -->
+                <div mdbModal #phraseQuizModal="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myBasicModalLabel"
+                  aria-hidden="true" [config]="{backdrop: false, ignoreBackdropClick: true}" style="overflow: auto">
+                  <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close pull-right" aria-label="Close" (click)="phraseQuizModal.hide(); resetForm();">
+                          <span aria-hidden="true">×</span>
+                        </button>
+                        <h4 class="modal-title w-100 h4-responsive" id="myModalLabel">Detail</h4>
+                      </div>
+                      <div class="modal-body">
+                        <div class="row">
+                          <div class="col">
+                            <p>{{pq.category}} Phrase's Question </p>
+                            <p>Question Type : {{pq.type.charAt(0).toUpperCase()}}{{pq.type.slice(1)}}</p>
+                            <p *ngIf="pq.type == 'text' || pq.type == 'boolean'">{{pq.question}}</p>
+                            <img src="{{pq.question}}" class="img-fluid" *ngIf="pq.type == 'image'">
+                            <p *ngIf="pq.type == 'text' || pq.type == 'image'">Option 1 (Right Answer) : {{pq.answer}}</p>
+                            <p *ngIf="pq.type == 'text' || pq.type == 'image'">Option 2 : {{pq.option1}}</p>
+                            <p *ngIf="pq.type == 'text' || pq.type == 'image'">Option 3 : {{pq.option2}}</p>
+                            <p *ngIf="pq.type == 'text' || pq.type == 'image'">Option 4 : {{pq.option3}}</p>
+                            <p *ngIf="pq.type == 'boolean'">Right Answer : {{pq.answer}}</p>
+                            <p>Correction or Explanation : {{pq.correction}}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary waves-light" aria-label="Close" (click)="phraseQuizModal.hide(); resetForm();"
+                          mdbWavesEffect>Close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- DETAIL MODAL -->
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<ng-template #loading>
+  <div class="spinner"></div>
+</ng-template>
+
+<!-- ADD CATEGORY -->
+<div mdbModal #addCategoryModal="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myBasicModalLabel"
+  aria-hidden="true" [config]="{backdrop: false, ignoreBackdropClick: true}">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close pull-right" aria-label="Close" (click)="addCategoryModal.hide(); resetForm();">
+          <span aria-hidden="true">×</span>
+        </button>
+        <h4 class="modal-title w-100 h4-responsive" id="myModalLabel">Add Category</h4>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="phraseCategoryForm" (ngSubmit)="onSubmitCategory()" *ngIf="addCategoryModal.isShown">
+          <!-- ROW 1.1 -->
+          <div class="row">
+            <!-- COL 1.2.1 -->
+            <div class="col-sm-6">
+              <div class="form-group">
+                <label>English</label>
+                <i class="fa fa-check green-text ml-1 pl-1" [hidden]="categoryEng.invalid"></i>
+                <input type="text" class="form-control" formControlName="categoryEng">
+              </div>
+              <div class="form-group">
+                <label>Indonesia</label>
+                <i class="fa fa-check green-text ml-1 pl-1" [hidden]="categoryIndo.invalid"></i>
+                <input type="text" class="form-control" formControlName="categoryIndo">
+              </div>
+              <div class="form-group">
+                <label>Japan</label>
+                <i class="fa fa-check green-text ml-1 pl-1" [hidden]="categoryJap.invalid"></i>
+                <input type="text" class="form-control" formControlName="categoryJap">
+              </div>
+              <div class="form-group">
+                <label>Romaji</label>
+                <i class="fa fa-check green-text ml-1 pl-1" [hidden]="categoryRomaji.invalid"></i>
+                <input type="text" class="form-control" formControlName="categoryRomaji">
+              </div>
+              <div class="form-group">
+                <label>Image</label>
+                <i class="fa fa-check green-text ml-1 pl-1" [hidden]="categoryImage.invalid"></i>
+                <input type="file" class="form-control" formControlName="categoryImage" (change)="fileChangeEvent($event)" accept="image/*"
+                />
+              </div>
+              <div class="form-group">
+                <button type="submit" class="btn btn-info waves-light" [disabled]="phraseCategoryForm.invalid || !errorPreviewState || upload || uploaded"
+                  mdbWavesEffect>Submit</button>
+                <button class="btn btn-outline-info waves-light" (click)="resetForm()" mdbWavesEffect>Reset</button>
+              </div>
+            </div>
+            <!-- COL 1.2.2 -->
+            <div class="col-sm-6">
+              <div class="form-group" *ngIf="categoryImage.valid">
+                <label>Preview</label>
+                <span class="green-text ml-1 pl-1" [hidden]="!errorPreviewState">
+                  <i class="fa fa-check"></i> {{errorPreview}}</span>
+                <span class="red-text ml-1 pl-1" [hidden]="errorPreviewState">
+                  <i class="fa fa-times"></i> {{errorPreview}}</span>
+                <image-cropper [imageChangedEvent]="imageChangedEvent2" [maintainAspectRatio]="false" [aspectRatio]="16 / 9" [resizeToWidth]="320"
+                  format="png" (imageCropped)="imageCropped2($event)" (imageLoaded)="imageLoaded()" (loadImageFailed)="loadImageFailed()"></image-cropper>
+              </div>
+              <div class="form-group" *ngIf="upload">
+                <p>Uploading ...</p>
+              </div>
+              <div class="form-group" *ngIf="uploaded">
+                <p>Uploaded!</p>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ADD CATEGORY -->

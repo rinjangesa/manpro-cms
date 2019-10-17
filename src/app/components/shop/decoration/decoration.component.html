@@ -1,0 +1,375 @@
+<main class="text-center mdb-color lighten-5 py-4">
+
+  <div class="container white py-4 my-4">
+
+    <hr class="pt-4">
+
+    <section>
+      <div class="container">
+        <h1 class="h1-responsive">
+          Decoration List
+        </h1>
+        <div class="form-group">
+          <div class="row">
+            <div class="col">
+              <button type="button" class="btn btn-success waves-light my-1" (click)="toggleAdding()" mdbWavesEffect>
+                <span *ngIf="!addState">Show</span>
+                <span *ngIf="addState">Hide</span> Add Decoration
+              </button>
+              <section class="my-1" *ngIf="addState">
+                <div class="container">
+                  <div class="row">
+                    <div class="col">
+                      <!-- contact form -->
+                      <form class="text-left" [formGroup]="decorForm" (ngSubmit)="onSubmitDecor()">
+                        <div class="card">
+                          <div class="card-body">
+                            <!-- form input -->
+                            <div class="row">
+                              <!-- kolom1 -->
+                              <div class="col-sm-6">
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-vcard grey-text"></i> Name
+                                    <i class="fa fa-check green-text" [hidden]="decorForm.get('decorFormName').invalid"></i>
+                                  </label>
+                                  <input type="text" formControlName="decorFormName" class="form-control">
+                                </div>
+
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-vcard grey-text"></i> Name (Japanese only)
+                                    <i class="fa fa-check green-text" [hidden]="decorForm.get('decorFormJapan').invalid"></i>
+                                  </label>
+                                  <input type="text" formControlName="decorFormJapan" class="form-control">
+                                </div>
+
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-money grey-text"></i> Price
+                                    <i class="fa fa-check green-text" [hidden]="decorForm.get('decorFormPrice').invalid"></i>
+                                  </label>
+                                  <input type="number" formControlName="decorFormPrice" class="form-control">
+                                </div>
+
+                                <!-- <div class="form-group">
+                                      <div class="row">
+              
+                                      </div>
+                                    </div> -->
+
+                              </div>
+
+                              <!-- kolom2 -->
+                              <div class="col-sm-6">
+
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-file-photo-o grey-text"></i> Image
+                                  </label>
+                                  <br>
+                                  <input type="file" class="form-control" formControlName="decorFormImage" (change)="fileChangeEvent3($event)" accept="image/*"
+                                  />
+                                </div>
+
+                                <div class="form-group text-center">
+                                  <button type="submit" [disabled]="decorForm.invalid" class="btn btn-mdb-color waves-light" (click)="uploadModal3.show()"
+                                    mdbWavesEffect>Submit
+                                    <i class="fa fa-paper-plane-o ml-1"></i>
+                                  </button>
+                                  <button class="btn btn-outline-mdb-color waves-light" (click)="resetAllForm()" mdbWavesEffect>Reset
+                                    <i class="fa fa-refresh ml-1"></i>
+                                  </button>
+                                </div>
+
+                                <div mdbModal #uploadModal3="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"
+                                  [config]="{backdrop: false, ignoreBackdropClick: true}">
+                                  <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                      <!-- <div class="modal-header"> </div> -->
+                                      <div class="modal-body">
+                                        <button type="button" class="close pull-right" aria-label="Close" (click)="uploadModal3.hide(); task3.cancel();">
+                                          <span aria-hidden="true">×</span>
+                                        </button>
+                                        <div class="form-group" *ngIf="percentage3 | async as pct">
+                                          <br>
+                                          <label>
+                                            Generating ... {{ pct | number }}%
+                                          </label>
+                                          <br>
+                                          <mat-progress-bar mode="determinate" [value]="pct"></mat-progress-bar>
+                                        </div>
+                                        <div class="form-group" *ngIf="snapshot3 | async as snap">
+                                          <label>
+                                            {{ snap.bytesTransferred | fileSize }} of {{ snap.totalBytes | fileSize }}
+                                          </label>
+                                          <br>
+                                          <div class="text-center">
+                                            <button (click)="task3.pause()" class="btn btn-yellow waves-light" [disabled]="!isActive(snap)">Pause</button>
+                                            <button (click)="task3.cancel()" class="btn btn-danger waves-light" [disabled]="!isActive(snap)">Cancel</button>
+                                            <button (click)="task3.resume()" class="btn btn-info waves-light" [disabled]="!(snap?.state === 'paused')">Resume</button>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div class="modal-footer">
+                                        <ng-template #loading>
+                                          <div class="spinner">
+                                            <div class="bounce1"></div>
+                                            <div class="bounce2"></div>
+                                            <div class="bounce3"></div>
+                                          </div>
+                                        </ng-template>
+                                        <h3 class="h3-responsive" *ngIf="downloadURL3; else loading">Uploaded!</h3>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                              </div>
+                            </div>
+                            <!-- form input -->
+                            <!-- preview -->
+                            <div class="row" *ngIf="decorForm.get('decorFormImage').valid">
+                              <div class="col">
+                                <div class="row">
+                                  <div class="col">
+                                    <label>
+                                      <i class="fa fa-image grey-text"></i> Thumbnail
+                                    </label>
+                                    <image-cropper [imageChangedEvent]="imageChangedEvent3" [maintainAspectRatio]="false" [aspectRatio]="1 / 1" [resizeToWidth]="320"
+                                      format="png" (imageCropped)="imageCroppedThumb3($event)" (imageLoaded)="imageLoaded3()"
+                                      (loadImageFailed)="loadImageFailed3()"></image-cropper>
+                                  </div>
+                                  <div class="col">
+                                    <div>
+                                      <label>
+                                        <i class="fa fa-image grey-text"></i> Full Image
+                                      </label>
+                                      <image-cropper [imageChangedEvent]="imageChangedEvent3" [maintainAspectRatio]="false" [aspectRatio]="1 / 1" [resizeToWidth]="640"
+                                        format="png" (imageCropped)="imageCropped3($event)" (imageLoaded)="imageLoaded3()"
+                                        (loadImageFailed)="loadImageFailed3()"></image-cropper>
+                                      <br>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="col">
+                                <div class="row text-center">
+                                  <div class="col">
+                                    <label (click)="thumbModal3.show()">
+                                      <i class="fa fa-eye grey-text"></i> Thumbnail Preview
+                                    </label>
+                                    <img class="img-fluid" [src]="croppedImageThumb3" (click)="thumbModal3.show()" />
+                                    <div mdbModal #thumbModal3="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                      <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                          <!-- <div class="modal-header"> </div> -->
+                                          <div class="modal-body">
+                                            <button type="button" class="close pull-right" aria-label="Close" (click)="thumbModal3.hide()">
+                                              <span aria-hidden="true">×</span>
+                                            </button>
+                                            <img class="img-fluid" [src]="croppedImageThumb3" />
+                                          </div>
+                                          <!-- <div class="modal-footer"> </div> -->
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="col">
+                                    <label (click)="fullModal3.show()">
+                                      <i class="fa fa-eye grey-text"></i> Full Image Preview
+                                    </label>
+                                    <img class="img-fluid" [src]="croppedImage3" (click)="fullModal3.show()" />
+                                    <div mdbModal #fullModal3="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                      <div class="modal-dialog modal-lg" role="document">
+                                        <div class="modal-content">
+                                          <!-- <div class="modal-header"></div> -->
+                                          <div class="modal-body">
+                                            <button type="button" class="close pull-right" aria-label="Close" (click)="fullModal3.hide()">
+                                              <span aria-hidden="true">×</span>
+                                            </button>
+                                            <img class="img-fluid" [src]="croppedImage3" />
+                                          </div>
+                                          <!-- <div class="modal-footer"> </div> -->
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <!-- preview -->
+                          </div>
+                        </div>
+                      </form>
+                      <!-- contact form -->
+                    </div>
+                  </div>
+                </div>
+                <hr>
+              </section>
+            </div>
+          </div>
+          <div class="row my-1 py-1">
+            <div class="col">
+              <mat-select #decorOrder [(value)]="selectedOrderDecor" (selectionChange)="orderDecorBy($event, decorSort.selected, decorOrder.selected);"
+                class="form-control">
+                <mat-option value="name">Name</mat-option>
+                <mat-option value="japanname">Japanese Name</mat-option>
+                <mat-option value="price">Price</mat-option>
+                <mat-option value="createdAt">Date</mat-option>
+              </mat-select>
+            </div>
+            <div class="col">
+              <mat-select #decorSort [(value)]="selectedSortDecor" (selectionChange)="sortDecorBy(decorOrder.selected, $event)" class="form-control">
+                <mat-option value="asc">
+                  <i class="fa fa-sort-amount-asc grey-text"></i> Ascending</mat-option>
+                <mat-option value="desc">
+                  <i class="fa fa-sort-amount-desc grey-text"></i> Descending</mat-option>
+              </mat-select>
+            </div>
+            <div class="col">
+              <input (keydown)="searchingDecor(decorOrder.selected, decorSort.selected, $event)" type="text" class="form-control" placeholder="{{placeholderDecor}}">
+            </div>
+          </div>
+        </div>
+        <hr>
+        <ng-template #loading>
+          <div class="spinner text-center">
+            <div class="bounce1"></div>
+            <div class="bounce2"></div>
+            <div class="bounce3"></div>
+          </div>
+        </ng-template>
+        <div class="row" *ngIf="decors?.length > 0; else loading" style="height: 650px; overflow:auto;">
+          <!--Grid column-->
+          <div class="col-lg-3 col-md-6 mb-3" *ngFor="let val of decors">
+            <!--Card-->
+            <div class="card wow fadeInUp">
+              <!--Card image-->
+              <div class="view overlay waves-light" (click)="detailDecorModal.show()" mdbWavesEffect>
+                <img lazyLoad="{{val.fullimg}}" offset="100" class="img-fluid" alt="{{val.japanname}}">
+                <a>
+                  <div class="mask rgba-white-slight"></div>
+                </a>
+              </div>
+              <!--Card image-->
+              <!--Card content-->
+              <div class="card-body text-center">
+                <!--Category & Title-->
+                <a class="grey-text" (click)="detailDecorModal.show()">
+                  <h5 class="h5-responsive">{{checkLength(val.japanname)}}</h5>
+                </a>
+                <h4 class="card-title h4-responsive">
+                  <strong>
+                    <a (click)="detailDecorModal.show()">{{val.name}}</a>
+                  </strong>
+                </h4>
+                <!--Card footer-->
+                <span class="float-left">
+                  <strong>
+                    <i class="fa fa-dollar grey-text"></i> {{val.price}}
+                  </strong>
+                </span>
+                <span class="float-right">
+                  <a title="Edit" (click)="editDecorModal.show(); editDecor(val);">
+                    <i class="fa fa-pencil grey-text"></i>
+                  </a>
+                  <a title="Delete" (click)="deleteDecorModal.show()">
+                    <i class="fa fa-trash grey-text ml-3"></i>
+                  </a>
+                  <div mdbModal #editDecorModal="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"
+                    [config]="{backdrop: false, ignoreBackdropClick: true}">
+                    <div class="modal-dialog modal-lg" role="document">
+                      <div class="modal-content">
+                        <div class="modal-body">
+                          <form class="text-left" [formGroup]="decorForm">
+                            <div class="row">
+                              <!-- kolom1 -->
+                              <div class="col">
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-vcard grey-text"></i> Name
+                                    <i class="fa fa-check green-text" [hidden]="decorForm.get('decorFormName').invalid"></i>
+                                  </label>
+                                  <input type="text" formControlName="decorFormName" class="form-control">
+                                </div>
+
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-vcard grey-text"></i> Name (Japanese only)
+                                    <i class="fa fa-check green-text" [hidden]="decorForm.get('decorFormJapan').invalid"></i>
+                                  </label>
+                                  <input type="text" formControlName="decorFormJapan" class="form-control">
+                                </div>
+                              </div>
+                            </div>
+                          </form>
+                          <button class="btn btn-danger" (click)="updateDecor($event, val); editDecorModal.hide()" [disabled]="decorForm.get('decorFormName').invalid || decorForm.get('decorFormJapan').invalid">Update</button>
+                          <button class="btn btn-outline-danger" (click)="editDecorModal.hide(); resetAllForm();">Cancel</button>
+                          <button class="btn btn-outline-mdb-color waves-light" (click)="editDecor(val)" mdbWavesEffect>Reset
+                            <i class="fa fa-refresh ml-1"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div mdbModal #deleteDecorModal="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+                    aria-hidden="true" [config]="{backdrop: false, ignoreBackdropClick: true}">
+                    <div class="modal-dialog" role="document">
+                      <div class="modal-content">
+                        <div class="modal-body">
+                          <p>Are you sure to Delete {{val.name}}?</p>
+                          <button class="btn btn-danger" (click)="deleteDecor($event, val); deleteDecorModal.hide()">Yes, delete</button>
+                          <button class="btn btn-outline-danger" (click)="deleteDecorModal.hide()">Cancel</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- detail modal -->
+                  <div mdbModal #detailDecorModal="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myBasicModalLabel"
+                    aria-hidden="true" [config]="{backdrop: false, ignoreBackdropClick: true}" style="overflow: auto;">
+                    <div class="modal-dialog modal-lg" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <button type="button" class="close pull-right" aria-label="Close" (click)="detailDecorModal.hide()">
+                            <span aria-hidden="true">×</span>
+                          </button>
+                          <h4 class="modal-title w-100" id="myModalLabel">Detail</h4>
+                        </div>
+                        <div class="modal-body">
+                          <div class="row">
+                            <div class="col">
+                              <a href="{{val.fullimg}}" target="_blank">
+                                <img src="{{val.fullimg}}" class="img-fluid" alt="">
+                              </a>
+                            </div>
+                            <div class="col text-left">
+                              <p>Name : {{val.name}}</p>
+                              <p>Japanese Name : {{val.japanname}}</p>
+                              <p>Price : {{val.price}}</p>
+                              <p>Added at : {{showDate(val.createdAt) | date:'fullDate'}}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                  <!-- detail modal -->
+                </span>
+              </div>
+              <!--Card content-->
+            </div>
+            <!--Card-->
+          </div>
+          <!--Grid column-->
+        </div>
+      </div>
+    </section>
+
+    <hr>
+
+  </div>
+
+</main>

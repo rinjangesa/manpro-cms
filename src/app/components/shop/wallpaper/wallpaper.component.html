@@ -1,0 +1,375 @@
+<main class="text-center mdb-color lighten-5 py-4">
+
+  <div class="container white py-4 my-4">
+
+    <hr class="pt-4">
+
+    <section>
+      <div class="container">
+        <h1 class="h1-responsive">
+          Wallpaper List
+        </h1>
+        <div class="form-group">
+          <div class="row">
+            <div class="col">
+              <button type="button" class="btn btn-success waves-light my-1" (click)="toggleAdding()" mdbWavesEffect>
+                <span *ngIf="!addState">Show</span>
+                <span *ngIf="addState">Hide</span> Add Wallpaper
+              </button>
+              <section class="my-1" *ngIf="addState">
+                <div class="container">
+                  <div class="row">
+                    <div class="col">
+                      <!-- contact form -->
+                      <form class="text-left" [formGroup]="wallForm" (ngSubmit)="onSubmitWall()">
+                        <div class="card">
+                          <div class="card-body">
+                            <!-- form input -->
+                            <div class="row">
+                              <!-- kolom1 -->
+                              <div class="col-sm-6">
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-vcard grey-text"></i> Name
+                                    <i class="fa fa-check green-text" [hidden]="wallForm.get('wallFormName').invalid"></i>
+                                  </label>
+                                  <input type="text" formControlName="wallFormName" class="form-control">
+                                </div>
+
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-vcard grey-text"></i> Name (Japanese only)
+                                    <i class="fa fa-check green-text" [hidden]="wallForm.get('wallFormJapan').invalid"></i>
+                                  </label>
+                                  <input type="text" formControlName="wallFormJapan" class="form-control">
+                                </div>
+
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-money grey-text"></i> Price
+                                    <i class="fa fa-check green-text" [hidden]="wallForm.get('wallFormPrice').invalid"></i>
+                                  </label>
+                                  <input type="number" formControlName="wallFormPrice" class="form-control">
+                                </div>
+
+                                <!-- <div class="form-group">
+                                      <div class="row">
+              
+                                      </div>
+                                    </div> -->
+
+                              </div>
+
+                              <!-- kolom2 -->
+                              <div class="col-sm-6">
+
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-file-photo-o grey-text"></i> Image
+                                  </label>
+                                  <br>
+                                  <input type="file" class="form-control" formControlName="wallFormImage" (change)="fileChangeEvent2($event)" accept="image/*"
+                                  />
+                                </div>
+
+                                <div class="form-group text-center">
+                                  <button type="submit" [disabled]="wallForm.invalid" class="btn btn-mdb-color waves-light" (click)="uploadModal2.show()" mdbWavesEffect>Submit
+                                    <i class="fa fa-paper-plane-o ml-1"></i>
+                                  </button>
+                                  <button class="btn btn-outline-mdb-color waves-light" (click)="resetAllForm()" mdbWavesEffect>Reset
+                                    <i class="fa fa-refresh ml-1"></i>
+                                  </button>
+                                </div>
+
+                                <div mdbModal #uploadModal2="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"
+                                  [config]="{backdrop: false, ignoreBackdropClick: true}">
+                                  <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                      <!-- <div class="modal-header"> </div> -->
+                                      <div class="modal-body">
+                                        <button type="button" class="close pull-right" aria-label="Close" (click)="uploadModal2.hide(); task2.cancel();">
+                                          <span aria-hidden="true">×</span>
+                                        </button>
+                                        <div class="form-group" *ngIf="percentage2 | async as pct">
+                                          <br>
+                                          <label>
+                                            Generating ... {{ pct | number }}%
+                                          </label>
+                                          <br>
+                                          <mat-progress-bar mode="determinate" [value]="pct"></mat-progress-bar>
+                                        </div>
+                                        <div class="form-group" *ngIf="snapshot2 | async as snap">
+                                          <label>
+                                            {{ snap.bytesTransferred | fileSize }} of {{ snap.totalBytes | fileSize }}
+                                          </label>
+                                          <br>
+                                          <div class="text-center">
+                                            <button (click)="task2.pause()" class="btn btn-yellow waves-light" [disabled]="!isActive(snap)">Pause</button>
+                                            <button (click)="task2.cancel()" class="btn btn-danger waves-light" [disabled]="!isActive(snap)">Cancel</button>
+                                            <button (click)="task2.resume()" class="btn btn-info waves-light" [disabled]="!(snap?.state === 'paused')">Resume</button>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div class="modal-footer">
+                                        <ng-template #loading>
+                                          <div class="spinner">
+                                            <div class="bounce1"></div>
+                                            <div class="bounce2"></div>
+                                            <div class="bounce3"></div>
+                                          </div>
+                                        </ng-template>
+                                        <h3 class="h3-responsive" *ngIf="downloadURL2; else loading">Uploaded!</h3>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                              </div>
+                            </div>
+                            <!-- form input -->
+                            <!-- preview -->
+                            <div class="row" *ngIf="wallForm.get('wallFormImage').valid">
+                              <div class="col">
+                                <div class="row">
+                                  <div class="col">
+                                    <label>
+                                      <i class="fa fa-image grey-text"></i> Thumbnail
+                                    </label>
+                                    <image-cropper [imageChangedEvent]="imageChangedEvent2" [maintainAspectRatio]="true" [aspectRatio]="9 / 16" [resizeToWidth]="320"
+                                      format="png" (imageCropped)="imageCroppedThumb2($event)" (imageLoaded)="imageLoaded2()"
+                                      (loadImageFailed)="loadImageFailed2()"></image-cropper>
+                                  </div>
+                                  <div class="col">
+                                    <div>
+                                      <label>
+                                        <i class="fa fa-image grey-text"></i> Full Image
+                                      </label>
+                                      <image-cropper [imageChangedEvent]="imageChangedEvent2" [maintainAspectRatio]="true" [aspectRatio]="9 / 16" [resizeToWidth]="640"
+                                        format="png" (imageCropped)="imageCropped2($event)" (imageLoaded)="imageLoaded2()"
+                                        (loadImageFailed)="loadImageFailed2()"></image-cropper>
+                                      <br>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="col">
+                                <div class="row text-center">
+                                  <div class="col">
+                                    <label (click)="thumbModal2.show()">
+                                      <i class="fa fa-eye grey-text"></i> Thumbnail Preview
+                                    </label>
+                                    <img class="img-fluid" [src]="croppedImageThumb2" (click)="thumbModal2.show()" />
+                                    <div mdbModal #thumbModal2="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                      <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                          <!-- <div class="modal-header"> </div> -->
+                                          <div class="modal-body">
+                                            <button type="button" class="close pull-right" aria-label="Close" (click)="thumbModal2.hide()">
+                                              <span aria-hidden="true">×</span>
+                                            </button>
+                                            <img class="img-fluid" [src]="croppedImageThumb2" />
+                                          </div>
+                                          <!-- <div class="modal-footer"> </div> -->
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="col">
+                                    <label (click)="fullModal2.show()">
+                                      <i class="fa fa-eye grey-text"></i> Full Image Preview
+                                    </label>
+                                    <img class="img-fluid" [src]="croppedImage2" (click)="fullModal2.show()" />
+                                    <div mdbModal #fullModal2="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"
+                                      style="overflow: auto;">
+                                      <div class="modal-dialog modal-lg" role="document">
+                                        <div class="modal-content">
+                                          <!-- <div class="modal-header"></div> -->
+                                          <div class="modal-body">
+                                            <button type="button" class="close pull-right" aria-label="Close" (click)="fullModal2.hide()">
+                                              <span aria-hidden="true">×</span>
+                                            </button>
+                                            <img class="img-fluid" [src]="croppedImage2" />
+                                          </div>
+                                          <!-- <div class="modal-footer"> </div> -->
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <!-- preview -->
+                          </div>
+                        </div>
+                      </form>
+                      <!-- contact form -->
+                    </div>
+                  </div>
+                </div>
+                <hr>
+              </section>
+            </div>
+          </div>
+          <div class="row my-1 py-1">
+            <div class="col">
+              <mat-select #wallOrder [(value)]="selectedOrderWall" (selectionChange)="orderWallBy($event, wallSort.selected, wallOrder.selected);"
+                class="form-control">
+                <mat-option value="name">Name</mat-option>
+                <mat-option value="japanname">Japanese Name</mat-option>
+                <mat-option value="price">Price</mat-option>
+                <mat-option value="createdAt">Date</mat-option>
+              </mat-select>
+            </div>
+            <div class="col">
+              <mat-select #wallSort [(value)]="selectedSortWall" (selectionChange)="sortWallBy(wallOrder.selected, $event)" class="form-control">
+                <mat-option value="asc">
+                  <i class="fa fa-sort-amount-asc grey-text"></i> Ascending</mat-option>
+                <mat-option value="desc">
+                  <i class="fa fa-sort-amount-desc grey-text"></i> Descending</mat-option>
+              </mat-select>
+            </div>
+            <div class="col">
+              <input (keydown)="searchingWall(wallOrder.selected, wallSort.selected, $event)" type="text" class="form-control" placeholder="{{placeholderWall}}">
+            </div>
+          </div>
+        </div>
+        <hr>
+        <ng-template #loading>
+          <div class="spinner text-center">
+            <div class="bounce1"></div>
+            <div class="bounce2"></div>
+            <div class="bounce3"></div>
+          </div>
+        </ng-template>
+        <div class="row" *ngIf="walls?.length > 0; else loading" style="height: 650px; overflow:auto;">
+          <!--Grid column-->
+          <div class="col-lg-3 col-md-6 mb-3" *ngFor="let val of walls">
+            <!--Card-->
+            <div class="card wow fadeInUp" style="height: 400px">
+              <!--Card image-->
+              <div class="view overlay waves-light" (click)="detailWallModal.show()" mdbWavesEffect>
+                <img lazyLoad="{{val.fullimg}}" offset="100" class="img-fluid" alt="{{val.japanname}}">
+                <a>
+                  <div class="mask rgba-white-slight"></div>
+                </a>
+              </div>
+              <!--Card image-->
+              <!--Card content-->
+              <div class="card-body text-center">
+                <!--Category & Title-->
+                <a class="grey-text" (click)="detailWallModal.show()">
+                  <h5 class="h5-responsive">{{checkLength(val.japanname)}}</h5>
+                </a>
+                <h4 class="card-title h4-responsive">
+                  <strong>
+                    <a (click)="detailWallModal.show()">{{val.name}}</a>
+                  </strong>
+                </h4>
+                <!--Card footer-->
+                <span class="float-left">
+                  <strong>
+                    <i class="fa fa-dollar grey-text"></i> {{val.price}}
+                  </strong>
+                </span>
+                <span class="float-right">
+                  <a title="Edit" (click)="editWallModal.show(); editWall(val);">
+                    <i class="fa fa-pencil grey-text"></i>
+                  </a>
+                  <a title="Delete" (click)="deleteWallModal.show()">
+                    <i class="fa fa-trash grey-text ml-3"></i>
+                  </a>
+                  <div mdbModal #editWallModal="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"
+                    [config]="{backdrop: false, ignoreBackdropClick: true}">
+                    <div class="modal-dialog modal-lg" role="document">
+                      <div class="modal-content">
+                        <div class="modal-body">
+                          <form class="text-left" [formGroup]="wallForm">
+                            <div class="row">
+                              <!-- kolom1 -->
+                              <div class="col">
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-vcard grey-text"></i> Name
+                                    <i class="fa fa-check green-text" [hidden]="wallForm.get('wallFormName').invalid"></i>
+                                  </label>
+                                  <input type="text" formControlName="wallFormName" class="form-control">
+                                </div>
+
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-vcard grey-text"></i> Name (Japanese only)
+                                    <i class="fa fa-check green-text" [hidden]="wallForm.get('wallFormJapan').invalid"></i>
+                                  </label>
+                                  <input type="text" formControlName="wallFormJapan" class="form-control">
+                                </div>
+                              </div>
+                            </div>
+                          </form>
+                          <button class="btn btn-danger" (click)="updateWall($event, val); editWallModal.hide()" [disabled]="wallForm.get('wallFormName').invalid || wallForm.get('wallFormJapan').invalid">Update</button>
+                          <button class="btn btn-outline-danger" (click)="editWallModal.hide(); resetAllForm();">Cancel</button>
+                          <button class="btn btn-outline-mdb-color waves-light" (click)="editWall(val)" mdbWavesEffect>Reset
+                            <i class="fa fa-refresh ml-1"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div mdbModal #deleteWallModal="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+                    aria-hidden="true" [config]="{backdrop: false, ignoreBackdropClick: true}">
+                    <div class="modal-dialog" role="document">
+                      <div class="modal-content">
+                        <div class="modal-body">
+                          <p>Are you sure to Delete {{val.name}}?</p>
+                          <button class="btn btn-danger" (click)="deleteWall($event, val); deleteWallModal.hide()">Yes, delete</button>
+                          <button class="btn btn-outline-danger" (click)="deleteWallModal.hide()">Cancel</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- detail modal -->
+                  <div mdbModal #detailWallModal="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myBasicModalLabel"
+                    aria-hidden="true" [config]="{backdrop: false, ignoreBackdropClick: true}" style="overflow: auto;">
+                    <div class="modal-dialog modal-lg" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <button type="button" class="close pull-right" aria-label="Close" (click)="detailWallModal.hide()">
+                            <span aria-hidden="true">×</span>
+                          </button>
+                          <h4 class="modal-title w-100" id="myModalLabel">Detail</h4>
+                        </div>
+                        <div class="modal-body">
+                          <div class="row">
+                            <div class="col">
+                              <a href="{{val.fullimg}}" target="_blank">
+                                <img src="{{val.fullimg}}" class="img-fluid" alt="">
+                              </a>
+                            </div>
+                            <div class="col text-left">
+                              <p>Name : {{val.name}}</p>
+                              <p>Japanese Name : {{val.japanname}}</p>
+                              <p>Price : {{val.price}}</p>
+                              <p>Added at : {{showDate(val.createdAt) | date:'fullDate'}}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                  <!-- detail modal -->
+                </span>
+              </div>
+              <!--Card content-->
+            </div>
+            <!--Card-->
+          </div>
+          <!--Grid column-->
+        </div>
+      </div>
+    </section>
+
+    <hr>
+
+  </div>
+
+</main>

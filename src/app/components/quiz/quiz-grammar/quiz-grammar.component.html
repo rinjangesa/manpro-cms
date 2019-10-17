@@ -1,0 +1,319 @@
+<main class="mdb-color lighten-5 py-4">
+  <div class="container white py-4 my-4">
+    <div class="row">
+
+      <div class="col-lg-4 col-md-6 py-1 my-1">
+        <h4 class="h4-responsive my-1 py-1">Grammar Category</h4>
+        <ul class="list-group">
+          <mat-radio-group [(value)]="selectedGrammarList" (change)="grammarChangeListener($event)">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <mat-radio-button value="basic">Basic</mat-radio-button>
+              <span class="badge badge-primary badge-pill">{{dataCounted.basicquiz}}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <mat-radio-button value="intermediate">Intermediate</mat-radio-button>
+              <span class="badge badge-primary badge-pill">{{dataCounted.intermediatequiz}}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <mat-radio-button value="expert">Expert</mat-radio-button>
+              <span class="badge badge-primary badge-pill">{{dataCounted.expertquiz}}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <mat-radio-button value="master">Master</mat-radio-button>
+              <span class="badge badge-primary badge-pill">{{dataCounted.masterquiz}}</span>
+            </li>
+          </mat-radio-group>
+        </ul>
+      </div>
+
+      <div class="col py-1 my-1">
+        <h4 class="h4-responsive my-1 py-1">Content of {{selectedGrammarList}}</h4>
+        <div class="card">
+          <!-- ADD phrase QUIZ -->
+          <div class="card-header">
+            <h4 class="h4-responsive">Add Quiz About {{selectedGrammarList}} phrase</h4>
+          </div>
+          <div class="card-body">
+            <form [formGroup]="grammarForm" (ngSubmit)="onSubmitGrammar()">
+              <!-- ROW 2.1 -->
+              <div class="row">
+                <!-- COL 2.2.1 -->
+                <div class="col">
+                  <div class="form-group">
+                    <label>Question Type</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="grammarType.invalid"></i>
+                    <mat-select class="form-control" formControlName="grammarType" (selectionChange)="grammarQuestionTypeChangeListener($event)"
+                      [disabled]="upload">
+                      <mat-option value="text">Multiple Choice (Text)</mat-option>
+                      <mat-option value="image">Multiple choice (Image)</mat-option>
+                      <mat-option value="boolean">True or False</mat-option>
+                    </mat-select>
+                  </div>
+                  <div class="form-group" *ngIf="selectedGrammarQuestionType == 'text'">
+                    <label>Question about {{selectedGrammarList}}</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="grammarQuestion.invalid"></i>
+                    <input type="text" class="form-control" formControlName="grammarQuestion" *ngIf="selectedGrammarQuestionType == 'text'">
+                  </div>
+                  <div class="form-group" *ngIf="selectedGrammarQuestionType == 'image'">
+                    <label>Question about {{selectedGrammarList}} (Upload an image)</label>
+                    <span class="green-text ml-1 pl-1" [hidden]="!errorPreviewState">
+                      <i class="fa fa-check"></i> {{errorPreview}}</span>
+                    <span class="red-text ml-1 pl-1" [hidden]="errorPreviewState">
+                      <i class="fa fa-times"></i> {{errorPreview}}</span>
+                    <input type="file" class="form-control" formControlName="grammarQuestion" (change)="fileChangeEvent($event)" accept="image/*"
+                      *ngIf="selectedGrammarQuestionType == 'image'">
+                  </div>
+                  <div class="form-group" *ngIf="selectedGrammarQuestionType == 'image'">
+                    <label>Preview & Crop</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="grammarQuestion.invalid"></i>
+                    <div class="row">
+                      <div class="col">
+                        <image-cropper [imageChangedEvent]="imageChangedEvent3" [maintainAspectRatio]="false" [aspectRatio]="4 / 3" [resizeToWidth]="300"
+                          format="png" (imageCropped)="imageCropped3($event)" (imageLoaded)="imageLoaded()" (loadImageFailed)="loadImageFailed()"></image-cropper>
+                      </div>
+                      <div class="col">
+                        <img class="img-fluid" [src]="croppedImage3" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group" *ngIf="selectedGrammarQuestionType == 'boolean'">
+                    <label>Question about {{selectedGrammarList}} (Make a statement)</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="grammarQuestion.invalid"></i>
+                    <input type="text" class="form-control" formControlName="grammarQuestion" *ngIf="selectedGrammarQuestionType == 'boolean'">
+                  </div>
+                  <div class="form-group" *ngIf="selectedGrammarQuestionType == 'text' || selectedGrammarQuestionType == 'image'">
+                    <label>Option 1 (Right Answer)</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="grammarAnswer.invalid"></i>
+                    <input type="text" class="form-control" formControlName="grammarAnswer" *ngIf="selectedGrammarQuestionType == 'text' || selectedGrammarQuestionType == 'image'">
+                  </div>
+                  <div class="form-group" *ngIf="selectedGrammarQuestionType == 'boolean'">
+                    <label>Right Answer</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="grammarAnswer.invalid"></i>
+                    <mat-radio-group [(value)]="selectedGrammarAnswer" class="form-control" formControlName="grammarAnswer" *ngIf="selectedGrammarQuestionType == 'boolean'">
+                      <mat-radio-button value="true">True</mat-radio-button>
+                      <br>
+                      <mat-radio-button value="false">False</mat-radio-button>
+                    </mat-radio-group>
+                  </div>
+                  <div class="form-group" *ngIf="selectedGrammarQuestionType == 'text' || selectedGrammarQuestionType == 'image'">
+                    <label>Option 2</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="grammarOption1.invalid"></i>
+                    <input type="text" class="form-control" formControlName="grammarOption1" *ngIf="selectedGrammarQuestionType == 'text' || selectedGrammarQuestionType == 'image'">
+                  </div>
+                  <div class="form-group" *ngIf="selectedGrammarQuestionType == 'text' || selectedGrammarQuestionType == 'image'">
+                    <label>Option 3</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="grammarOption2.invalid"></i>
+                    <input type="text" class="form-control" formControlName="grammarOption2" *ngIf="selectedGrammarQuestionType == 'text' || selectedGrammarQuestionType == 'image'">
+                  </div>
+                  <div class="form-group" *ngIf="selectedGrammarQuestionType == 'text' || selectedGrammarQuestionType == 'image'">
+                    <label>Option 4</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="grammarOption3.invalid"></i>
+                    <input type="text" class="form-control" formControlName="grammarOption3" *ngIf="selectedGrammarQuestionType == 'text' || selectedGrammarQuestionType == 'image'">
+                  </div>
+                  <div class="form-group">
+                    <label>Correction or Explanation</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="grammarCorrection.invalid"></i>
+                    <textarea type="text" class="form-control" formControlName="grammarCorrection"></textarea>
+                  </div>
+                  <div class="form-group">
+                    <button type="submit" class="btn btn-success waves-light" [disabled]="grammarForm.invalid || upload || uploaded" mdbWavesEffect>Submit</button>
+                    <button class="btn btn-outline-success waves-light" (click)="resetForm()" mdbWavesEffect>Reset</button>
+                  </div>
+                  <div class="form-group" *ngIf="upload">
+                    <p>Uploading ...</p>
+                  </div>
+                  <div class="form-group" *ngIf="uploaded">
+                    <p>Uploaded!</p>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <!-- grammar LIST -->
+          <div class="card-header">
+            <h4 class="h4-responsive">Questions About {{selectedGrammarList}}</h4>
+          </div>
+          <div class="card-body">
+            <!-- ROW 1.2 -->
+            <div *ngIf="grammarQuizzes?.length > 0; else loading" style="height: 650px; overflow:auto;">
+              <!-- COL 1.2.3 -->
+              <div *ngFor="let gq of grammarQuizzes">
+                <div class="card waves-light border border-info mt-2 pt-2" mdbWavesEffect>
+                  <a>
+                    <div class="card-body text-left" (click)="grammarQuizModal.show();">
+                      <p>Question Type : {{gq.type.charAt(0).toUpperCase()}}{{gq.type.slice(1)}}</p>
+                      <p *ngIf="gq.type == 'text' || gq.type == 'boolean'">{{gq.question}}</p>
+                      <img src="{{gq.question}}" class="img-fluid" *ngIf="gq.type == 'image'">
+                    </div>
+                  </a>
+                  <div class="card-footer">
+                    <a (click)="grammarEditQuizModal.show(); setEditGrammar(gq);">
+                      <i class="fa fa-edit mx-1 px-1"></i>
+                    </a>
+                    <a (click)="grammarDeleteQuizModal.show();">
+                      <i class="fa fa-trash mx-1 px-1"></i>
+                    </a>
+                  </div>
+                </div>
+                <!-- EDIT MODAL -->
+                <div mdbModal #grammarEditQuizModal="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myBasicModalLabel"
+                  aria-hidden="true" [config]="{backdrop: false, ignoreBackdropClick: true}" style="overflow: auto">
+                  <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close pull-right" aria-label="Close" (click)="grammarEditQuizModal.hide(); resetForm();">
+                          <span aria-hidden="true">×</span>
+                        </button>
+                        <h4 class="modal-title w-100 h4-responsive" id="myModalLabel">Detail</h4>
+                      </div>
+                      <div class="modal-body">
+                        <form [formGroup]="grammarForm">
+                          <div class="form-group" *ngIf="gq.type == 'text'">
+                            <label>{{gq.tier}} Question</label>
+                            <i class="fa fa-check green-text ml-1 pl-1" [hidden]="grammarQuestion.invalid"></i>
+                            <input type="text" class="form-control" formControlName="grammarQuestion" *ngIf="gq.type == 'text'">
+                          </div>
+                          <div class="form-group" *ngIf="gq.type == 'image'">
+                            <label>{{gq.tier}} Question (Upload an image)</label>
+                            <span class="green-text ml-1 pl-1" [hidden]="!errorPreviewState">
+                              <i class="fa fa-check"></i> {{errorPreview}}</span>
+                            <span class="red-text ml-1 pl-1" [hidden]="errorPreviewState">
+                              <i class="fa fa-times"></i> {{errorPreview}}</span>
+                            <input type="file" class="form-control" (change)="fileChangeEvent($event)" accept="image/*" *ngIf="gq.type == 'image'">
+                          </div>
+                          <div class="form-group" *ngIf="gq.type == 'image'">
+                            <label>Preview & Crop</label>
+                            <i class="fa fa-check green-text ml-1 pl-1" [hidden]="croppedImage3"></i>
+                            <div class="row">
+                              <div class="col">
+                                <image-cropper [imageChangedEvent]="imageChangedEvent3" [maintainAspectRatio]="false" [aspectRatio]="4 / 3" [resizeToWidth]="300"
+                                  format="png" (imageCropped)="imageCropped3($event)" (imageLoaded)="imageLoaded()" (loadImageFailed)="loadImageFailed()"></image-cropper>
+                              </div>
+                              <div class="col">
+                                <img class="img-fluid" [src]="croppedImage3" />
+                              </div>
+                            </div>
+                          </div>
+                          <div class="form-group" *ngIf="gq.type == 'boolean'">
+                            <label>{{gq.tier}} Question (Make a statement)</label>
+                            <i class="fa fa-check green-text ml-1 pl-1" [hidden]="grammarQuestion.invalid"></i>
+                            <input type="text" class="form-control" formControlName="grammarQuestion" *ngIf="gq.type == 'boolean'">
+                          </div>
+                          <div class="form-group" *ngIf="gq.type == 'text' || gq.type == 'image'">
+                            <label>Option 1 (Right Answer)</label>
+                            <i class="fa fa-check green-text ml-1 pl-1" [hidden]="grammarAnswer.invalid"></i>
+                            <input type="text" class="form-control" formControlName="grammarAnswer" *ngIf="gq.type == 'text' || gq.type == 'image'">
+                          </div>
+                          <div class="form-group" *ngIf="gq.type == 'boolean'">
+                            <label>Right Answer</label>
+                            <i class="fa fa-check green-text ml-1 pl-1" [hidden]="grammarAnswer.invalid"></i>
+                            <mat-radio-group [(value)]="selectedGrammarAnswer" class="form-control" formControlName="grammarAnswer" *ngIf="gq.type == 'boolean'">
+                              <mat-radio-button value="true">True</mat-radio-button>
+                              <br>
+                              <mat-radio-button value="false">False</mat-radio-button>
+                            </mat-radio-group>
+                          </div>
+                          <div class="form-group" *ngIf="gq.type == 'text' || gq.type == 'image'">
+                            <label>Option 2</label>
+                            <i class="fa fa-check green-text ml-1 pl-1" [hidden]="grammarOption1.invalid"></i>
+                            <input type="text" class="form-control" formControlName="grammarOption1" *ngIf="gq.type == 'text' || gq.type == 'image'">
+                          </div>
+                          <div class="form-group" *ngIf="gq.type == 'text' || gq.type == 'image'">
+                            <label>Option 3</label>
+                            <i class="fa fa-check green-text ml-1 pl-1" [hidden]="grammarOption2.invalid"></i>
+                            <input type="text" class="form-control" formControlName="grammarOption2" *ngIf="gq.type == 'text' || gq.type == 'image'">
+                          </div>
+                          <div class="form-group" *ngIf="gq.type == 'text' || gq.type == 'image'">
+                            <label>Option 4</label>
+                            <i class="fa fa-check green-text ml-1 pl-1" [hidden]="grammarOption3.invalid"></i>
+                            <input type="text" class="form-control" formControlName="grammarOption3" *ngIf="gq.type == 'text' || gq.type == 'image'">
+                          </div>
+                          <div class="form-group">
+                            <label>Correction or Explanation</label>
+                            <i class="fa fa-check green-text ml-1 pl-1" [hidden]="grammarCorrection.invalid"></i>
+                            <textarea type="text" class="form-control" formControlName="grammarCorrection"></textarea>
+                          </div>
+                        </form>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary waves-light" aria-label="Close" (click)="updateGrammar($event, gq).then(grammarEditQuizModal.hide());"
+                          mdbWavesEffect>Save</button>
+                        <button type="button" class="btn btn-secondary waves-light" aria-label="Close" (click)="grammarEditQuizModal.hide(); resetForm();"
+                          mdbWavesEffect>Cancel</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- EDIT MODAL -->
+                <!-- DELETE MODAL -->
+                <div mdbModal #grammarDeleteQuizModal="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myBasicModalLabel"
+                  aria-hidden="true" [config]="{backdrop: false, ignoreBackdropClick: true}" style="overflow: auto">
+                  <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close pull-right" aria-label="Close" (click)="grammarDeleteQuizModal.hide(); resetForm();">
+                          <span aria-hidden="true">×</span>
+                        </button>
+                        <h4 class="modal-title w-100 h4-responsive" id="myModalLabel">Warning</h4>
+                      </div>
+                      <div class="modal-body">
+                        <p>Are you sure to Delete this quiz?</p>
+                      </div>
+                      <div class="modal-footer">
+                        <button class="btn btn-danger" (click)="deleteGrammar($event, gq); grammarDeleteQuizModal.hide()">Yes, delete</button>
+                        <button type="button" class="btn btn-secondary waves-light" aria-label="Close" (click)="grammarDeleteQuizModal.hide(); resetForm();"
+                          mdbWavesEffect>Close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- DELETE MODAL -->
+                <!-- DETAIL MODAL -->
+                <div mdbModal #grammarQuizModal="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myBasicModalLabel"
+                  aria-hidden="true" [config]="{backdrop: false, ignoreBackdropClick: true}" style="overflow: auto">
+                  <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close pull-right" aria-label="Close" (click)="grammarQuizModal.hide(); resetForm();">
+                          <span aria-hidden="true">×</span>
+                        </button>
+                        <h4 class="modal-title w-100 h4-responsive" id="myModalLabel">Detail</h4>
+                      </div>
+                      <div class="modal-body">
+                        <div class="row">
+                          <div class="col">
+                            <p>{{gq.tier}} grammar's Question </p>
+                            <p>Question Type : {{gq.type.charAt(0).toUpperCase()}}{{gq.type.slice(1)}}</p>
+                            <p *ngIf="gq.type == 'text' || gq.type == 'boolean'">{{gq.question}}</p>
+                            <img src="{{gq.question}}" class="img-fluid" *ngIf="gq.type == 'image'">
+                            <p *ngIf="gq.type == 'text' || gq.type == 'image'">Option 1 (Right Answer) : {{gq.answer}}</p>
+                            <p *ngIf="gq.type == 'text' || gq.type == 'image'">Option 2 : {{gq.option1}}</p>
+                            <p *ngIf="gq.type == 'text' || gq.type == 'image'">Option 3 : {{gq.option2}}</p>
+                            <p *ngIf="gq.type == 'text' || gq.type == 'image'">Option 4 : {{gq.option3}}</p>
+                            <p *ngIf="gq.type == 'boolean'">Right Answer : {{gq.answer}}</p>
+                            <p>Correction or Explanation : {{gq.correction}}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary waves-light" aria-label="Close" (click)="grammarQuizModal.hide(); resetForm();"
+                          mdbWavesEffect>Close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- DETAIL MODAL -->
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<ng-template #loading>
+  <div class="spinner"></div>
+</ng-template>

@@ -1,20 +1,188 @@
-<!--The content below is only a placeholder and can be replaced.-->
-<div style="text-align:center">
-  <h1>
-    Welcome to {{ title }}!
-  </h1>
-  <img width="300" alt="Angular Logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4KICAgIDxwYXRoIGZpbGw9IiNERDAwMzEiIGQ9Ik0xMjUgMzBMMzEuOSA2My4ybDE0LjIgMTIzLjFMMTI1IDIzMGw3OC45LTQzLjcgMTQuMi0xMjMuMXoiIC8+CiAgICA8cGF0aCBmaWxsPSIjQzMwMDJGIiBkPSJNMTI1IDMwdjIyLjItLjFWMjMwbDc4LjktNDMuNyAxNC4yLTEyMy4xTDEyNSAzMHoiIC8+CiAgICA8cGF0aCAgZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNSA1Mi4xTDY2LjggMTgyLjZoMjEuN2wxMS43LTI5LjJoNDkuNGwxMS43IDI5LjJIMTgzTDEyNSA1Mi4xem0xNyA4My4zaC0zNGwxNy00MC45IDE3IDQwLjl6IiAvPgogIDwvc3ZnPg==">
+<div *ngIf="auth.user | async; then authenticated else guest">
+  <!-- template will replace this div -->
 </div>
-<h2>Here are some links to help you start: </h2>
-<ul>
-  <li>
-    <h2><a target="_blank" rel="noopener" href="https://angular.io/tutorial">Tour of Heroes</a></h2>
-  </li>
-  <li>
-    <h2><a target="_blank" rel="noopener" href="https://github.com/angular/angular-cli/wiki">CLI Documentation</a></h2>
-  </li>
-  <li>
-    <h2><a target="_blank" rel="noopener" href="https://blog.angular.io/">Angular blog</a></h2>
-  </li>
-</ul>
 
+<!-- header -->
+<ng-template #authenticated>
+  <header id="navigator" class="h-100" *ngIf="auth.user | async as user">
+    <mdb-navbar SideClass="navbar fixed-top navbar-expand-lg navbar-dark danger-color scrolling-navbar ie-nav" [containerInside]="true">
+      <logo>
+        <a class="logo navbar-brand" href="#">
+          <strong>All New JC Class</strong>
+        </a>
+      </logo>
+      <links>
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item waves-light" routerLinkActive="active" mdbWavesEffect *ngIf="user.role == 'Admin' || user.role == 'Teacher'">
+            <a class="nav-link" routerLink="home">Home</a>
+          </li>
+          <li class="nav-item waves-light" routerLinkActive="active" mdbWavesEffect *ngIf="user.role == 'Admin'">
+            <a class="nav-link" routerLink="user">User</a>
+          </li>
+          <li class="nav-item dropdown" routerLinkActive="active" dropdown *ngIf="user.role != 'Student'">
+            <a dropdownToggle mdbWavesEffect type="button" class="nav-link dropdown-toggle waves-light" mdbWavesEffect>
+              Quiz
+              <span class="caret"></span>
+            </a>
+            <div *dropdownMenu class="dropdown-menu dropdown dropdown-primary" role="menu">
+              <h6 class="warning-color white-text dropdown-header">
+                <b>Material</b>
+              </h6>
+              <a class="dropdown-item waves-light" mdbWavesEffect routerLink="material/kanji">Kanji</a>
+              <a class="dropdown-item waves-light" mdbWavesEffect routerLink="material/phrases">Phrases</a>
+              <a class="dropdown-item waves-light" mdbWavesEffect routerLink="material/grammar">Grammar</a>
+              <div class="dropdown-divider"></div>
+              <h6 class="warning-color white-text dropdown-header">
+                <b>Question</b>
+              </h6>
+              <a class="dropdown-item waves-light" mdbWavesEffect routerLink="quiz/kanji">Kanji</a>
+              <a class="dropdown-item waves-light" mdbWavesEffect routerLink="quiz/phrases">Phrases</a>
+              <a class="dropdown-item waves-light" mdbWavesEffect routerLink="quiz/grammar">Grammar</a>
+            </div>
+          </li>
+          <li class="nav-item dropdown" routerLinkActive="active" dropdown *ngIf="user.role == 'Admin' || user.role == 'Teacher'">
+            <a dropdownToggle mdbWavesEffect type="button" class="nav-link dropdown-toggle waves-light" mdbWavesEffect>
+              Shop
+              <span class="caret"></span>
+            </a>
+            <div *dropdownMenu class="dropdown-menu dropdown dropdown-primary" role="menu">
+              <a class="dropdown-item waves-light" mdbWavesEffect routerLink="shop/character">Character</a>
+              <a class="dropdown-item waves-light" mdbWavesEffect routerLink="shop/wallpaper">Wallpaper</a>
+              <a class="dropdown-item waves-light" mdbWavesEffect routerLink="shop/decoration">Decoration</a>
+            </div>
+          </li>
+          <li class="nav-item waves-light" routerLinkActive="active" mdbWavesEffect *ngIf="user.role == 'Admin' || user.role == 'Teacher'">
+            <a class="nav-link" routerLink="event">Event</a>
+          </li>
+          <li class="nav-item waves-light" (click)="auth.signOut()" mdbWavesEffect *ngIf="user.role == 'Student'">
+            <a class="nav-link">Click Me!</a>
+          </li>
+        </ul>
+        <ul class="navbar-nav nav-flex-icons">
+          <li class="nav-item waves-light" (click)="auth.signOut()" mdbWavesEffect>
+            <a class="nav-link">
+              <i class="fa fa-sign-out"></i> Logout
+            </a>
+          </li>
+        </ul>
+      </links>
+    </mdb-navbar>
+  </header>
+  <!-- header -->
+
+  <!-- Main -->
+  <div *ngIf="auth.user | async as user">
+    <div *ngIf="user.role == 'Admin' || user.role == 'Teacher'">
+      <router-outlet></router-outlet>
+    </div>
+    <div class="text-center" *ngIf="user.role == 'Student'">
+      <main class="mdb-color lighten-5 py-4">
+        <div class="container white py-4 my-4">
+          <hr class="py-4">
+          <h1 class="text-center"> You do not have permission.</h1>
+        </div>
+      </main>
+    </div>
+  </div>
+  <!-- /.Main -->
+
+  <!--Footer-->
+  <footer class="page-footer danger-color text-center text-md-left pt-4" *ngIf="auth.user | async as user">
+
+    <!--Footer Links-->
+    <div class="container" *ngIf="user.role == 'Admin' || user.role == 'Teacher'">
+      <div class="row">
+
+        <!--First column-->
+        <div class="col-md-6">
+          <h5 class="title">Looking for inspiration?</h5>
+          <span>Check out the website on the side 
+            <i class="fa fa-arrow-right"></i>
+          </span>
+        </div>
+        <!--/.First column-->
+
+        <!--Second column-->
+        <div class="col-md-6">
+          <h5 class="title">Links</h5>
+          <ul class="list-unstyled">
+            <li>
+              <a target="_blank" href="http://www.tanos.co.uk/">Tanos</a>
+            </li>
+            <li>
+              <a target="_blank" href="https://kanjialive.com/">Kanji alive</a>
+            </li>
+            <li>
+              <a target="_blank" href="https://www.youtube.com/user/japanesepod101/featured">Learn Japanesepod101 Channel</a>
+            </li>
+          </ul>
+        </div>
+        <!--/.Second column-->
+
+      </div>
+    </div>
+    <!--/.Footer Links-->
+
+    <!--Copyright-->
+    <div class="footer-copyright text-center py-3">
+      <div class="container-fluid">
+        © 2018 Copyright :
+        <a class="white-text"> Shob and Bima </a>
+
+      </div>
+    </div>
+    <!--/.Copyright-->
+
+  </footer>
+  <!--/.Footer-->
+</ng-template>
+
+<ng-template #guest>
+  <!-- Login form -->
+  <div class="container">
+    <div class="card my-5 py-5">
+      <div class="card-body">
+        <form [formGroup]="loginForm">
+          <h4 class="h4-responsive text-center">Sign In</h4>
+
+          <div class="form-group">
+            <label>
+              <i class="fa fa-envelope prefix grey-text"></i> Email
+              <i class="fa fa-check prefix green-text" [hidden]="loginForm.get('defaultFormEmail').invalid"></i>
+            </label>
+            <input type="text" formControlName="defaultFormEmail" class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label>
+              <i class="fa fa-lock prefix grey-text"></i> Password
+              <i class="fa fa-check prefix green-text" [hidden]="loginForm.get('defaultFormPass').invalid"></i>
+            </label>
+            <input type="password" formControlName="defaultFormPass" class="form-control">
+          </div>
+
+          <div class="form-group text-center">
+            <button class="btn btn-default waves-light" (click)="logging()" [disabled]="loginForm.invalid">
+              <i class="fa fa-email"></i> Login
+            </button>
+          </div>
+
+        </form>
+
+        <div class="card red text-center" *ngIf="errorMessage">
+          <div class="card-body">
+            <p class="white-text">{{errorMessage}}</p>
+          </div>
+        </div>
+
+        <div class="card yellow text-center" *ngIf="loadingMessage">
+          <div class="card-body">
+            <p class="white-text">{{loadingMessage}}</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <!-- Login form -->
+</ng-template>

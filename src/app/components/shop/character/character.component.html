@@ -1,0 +1,475 @@
+<main class="text-center mdb-color lighten-5 py-4">
+
+  <div class="container white py-4 my-4">
+
+    <hr class="pt-4">
+
+    <section>
+      <div class="container">
+        <h1 class="h1-responsive">
+          Character List
+        </h1>
+        <div class="form-group">
+          <div class="row">
+            <div class="col">
+              <button type="button" class="btn btn-success waves-light my-1" (click)="toggleAdding()" mdbWavesEffect>
+                <span *ngIf="!addState">Show</span>
+                <span *ngIf="addState">Hide</span> Add Character
+              </button>
+              <section class="my-1" *ngIf="addState">
+                <div class="container">
+                  <div class="row">
+                    <div class="col">
+                      <!-- contact form -->
+                      <form class="text-left" [formGroup]="charForm" (ngSubmit)="onSubmitChar()">
+                        <div class="card">
+                          <div class="card-body">
+                            <!-- form input -->
+                            <div class="row">
+                              <!-- kolom1 -->
+                              <div class="col-sm-6">
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-vcard grey-text"></i> Name
+                                    <i class="fa fa-check green-text" [hidden]="charForm.get('charFormName').invalid"></i>
+                                  </label>
+                                  <input type="text" formControlName="charFormName" class="form-control">
+                                </div>
+
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-vcard grey-text"></i> Name (Japanese only)
+                                    <i class="fa fa-check green-text" [hidden]="charForm.get('charFormJapan').invalid"></i>
+                                  </label>
+                                  <ng-template #popJapanInput>
+                                    <div>
+                                      <p>How to switch keyboard into japanese input method</p>
+                                      <img class="img-fluid" src="../../../assets/howtoinputjapan.png" alt="">
+                                      <img class="img-fluid" src="../../../assets/howtoinputjapan2.png" alt="">
+                                    </div>
+                                  </ng-template>
+                                  <input type="text" formControlName="charFormJapan" class="form-control" [mdbPopover]="popJapanInput" placement="left" popoverTitle="Japanese characters only"
+                                    triggers="focus">
+                                </div>
+
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-money grey-text"></i> Price
+                                    <i class="fa fa-check green-text" [hidden]="charForm.get('charFormPrice').invalid"></i>
+                                  </label>
+                                  <input type="number" formControlName="charFormPrice" class="form-control">
+                                </div>
+
+                                <div class="form-group">
+                                  <div class="row">
+                                    <div class="col">
+                                      <label>
+                                        <i class="fa fa-times grey-text"></i> Exp
+                                        <i class="fa fa-check green-text" [hidden]="charForm.get('charFormExp').invalid"></i>
+                                      </label>
+                                      <br>
+                                      <mat-select formControlName="charFormExp" class="form-control">
+                                        <mat-option *ngFor="let val of multipliers" [value]="val.value">{{val.name}}</mat-option>
+                                      </mat-select>
+                                    </div>
+                                    <div class="col">
+                                      <label>
+                                        <i class="fa fa-times grey-text"></i> Money
+                                        <i class="fa fa-check green-text" [hidden]="charForm.get('charFormMoney').invalid"></i>
+                                      </label>
+                                      <br>
+                                      <mat-select formControlName="charFormMoney" class="form-control">
+                                        <mat-option *ngFor="let val of multipliers" [value]="val.value">{{val.name}}</mat-option>
+                                      </mat-select>
+                                    </div>
+                                  </div>
+
+                                </div>
+
+                              </div>
+
+                              <!-- kolom2 -->
+                              <div class="col-sm-6">
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-pencil grey-text"></i> Description (Bahasa Indonesia)
+                                    <i class="fa fa-check green-text" [hidden]="charForm.get('charFormDescInd').invalid"></i>
+                                  </label>
+                                  <textarea class="form-control" formControlName="charFormDescInd"></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-pencil grey-text"></i> Description (English)
+                                    <i class="fa fa-check green-text" [hidden]="charForm.get('charFormDescEng').invalid"></i>
+                                  </label>
+                                  <textarea class="form-control" formControlName="charFormDescEng"></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-pencil grey-text"></i> Description (Japanese only)
+                                    <i class="fa fa-check green-text ml-1" [hidden]="charForm.get('charFormDescJpn').invalid"></i>
+                                  </label>
+                                  <textarea class="form-control" formControlName="charFormDescJpn"></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-file-photo-o grey-text"></i> Image
+                                  </label>
+                                  <br>
+                                  <input type="file" class="form-control" formControlName="charFormImage" (change)="fileChangeEvent($event)" accept="image/*"
+                                  />
+                                </div>
+
+                                <div class="form-group text-center">
+                                  <button type="submit" [disabled]="charForm.invalid" class="btn btn-mdb-color waves-light" (click)="uploadModal.show()" mdbWavesEffect>Submit
+                                    <i class="fa fa-paper-plane-o ml-1"></i>
+                                  </button>
+                                  <button class="btn btn-outline-mdb-color waves-light" (click)="resetAllForm()" mdbWavesEffect>Reset
+                                    <i class="fa fa-refresh ml-1"></i>
+                                  </button>
+                                </div>
+
+                                <div mdbModal #uploadModal="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"
+                                  [config]="{backdrop: false, ignoreBackdropClick: true}">
+                                  <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                      <!-- <div class="modal-header"> </div> -->
+                                      <div class="modal-body">
+                                        <button type="button" class="close pull-right" aria-label="Close" (click)="uploadModal.hide(); task.cancel();">
+                                          <span aria-hidden="true">×</span>
+                                        </button>
+                                        <div class="form-group" *ngIf="percentage | async as pct">
+                                          <br>
+                                          <label>
+                                            Generating ... {{ pct | number }}%
+                                          </label>
+                                          <br>
+                                          <mat-progress-bar mode="determinate" [value]="pct"></mat-progress-bar>
+                                        </div>
+                                        <div class="form-group" *ngIf="snapshot | async as snap">
+                                          <label>
+                                            {{ snap.bytesTransferred | fileSize }} of {{ snap.totalBytes | fileSize }}
+                                          </label>
+                                          <br>
+                                          <div class="text-center">
+                                            <button (click)="task.pause()" class="btn btn-yellow waves-light" [disabled]="!isActive(snap)">Pause</button>
+                                            <button (click)="task.cancel()" class="btn btn-danger waves-light" [disabled]="!isActive(snap)">Cancel</button>
+                                            <button (click)="task.resume()" class="btn btn-info waves-light" [disabled]="!(snap?.state === 'paused')">Resume</button>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div class="modal-footer">
+                                        <ng-template #loading>
+                                          <div class="spinner">
+                                            <div class="bounce1"></div>
+                                            <div class="bounce2"></div>
+                                            <div class="bounce3"></div>
+                                          </div>
+                                        </ng-template>
+                                        <h3 class="h3-responsive" *ngIf="downloadURL; else loading">Uploaded!</h3>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                              </div>
+                            </div>
+                            <!-- form input -->
+                            <!-- preview -->
+                            <div class="row" *ngIf="charForm.get('charFormImage').valid">
+                              <div class="col">
+                                <div class="row">
+                                  <div class="col">
+                                    <label>
+                                      <i class="fa fa-image grey-text"></i> Thumbnail
+                                    </label>
+                                    <image-cropper [imageChangedEvent]="imageChangedEvent" [maintainAspectRatio]="true" [aspectRatio]="1 / 1" [resizeToWidth]="110"
+                                      format="png" (imageCropped)="imageCroppedThumb($event)" (imageLoaded)="imageLoaded()"
+                                      (loadImageFailed)="loadImageFailed()"></image-cropper>
+                                  </div>
+                                  <div class="col">
+                                    <div>
+                                      <label>
+                                        <i class="fa fa-image grey-text"></i> Full Image
+                                      </label>
+                                      <image-cropper [imageChangedEvent]="imageChangedEvent" [maintainAspectRatio]="true" [aspectRatio]="9 / 16" [resizeToWidth]="480"
+                                        format="png" (imageCropped)="imageCropped($event)" (imageLoaded)="imageLoaded()" (loadImageFailed)="loadImageFailed()"></image-cropper>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="col">
+                                <div class="row text-center">
+                                  <div class="col">
+                                    <label (click)="thumbModal.show()">
+                                      <i class="fa fa-eye grey-text"></i> Thumbnail Preview
+                                    </label>
+                                    <img class="img-fluid" [src]="croppedImageThumb" (click)="thumbModal.show()" />
+                                    <div mdbModal #thumbModal="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                      <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                          <!-- <div class="modal-header"> </div> -->
+                                          <div class="modal-body">
+                                            <button type="button" class="close pull-right" aria-label="Close" (click)="thumbModal.hide()">
+                                              <span aria-hidden="true">×</span>
+                                            </button>
+                                            <img class="img-fluid" [src]="croppedImageThumb" />
+                                          </div>
+                                          <!-- <div class="modal-footer"> </div> -->
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="col">
+                                    <label (click)="fullModal.show()">
+                                      <i class="fa fa-eye grey-text"></i> Full Image Preview
+                                    </label>
+                                    <img class="img-fluid" [src]="croppedImage" (click)="fullModal.show()" />
+                                    <div mdbModal #fullModal="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                      <div class="modal-dialog modal-lg" role="document">
+                                        <div class="modal-content">
+                                          <!-- <div class="modal-header"></div> -->
+                                          <div class="modal-body">
+                                            <button type="button" class="close pull-right" aria-label="Close" (click)="fullModal.hide()">
+                                              <span aria-hidden="true">×</span>
+                                            </button>
+                                            <img class="img-fluid" [src]="croppedImage" />
+                                          </div>
+                                          <!-- <div class="modal-footer"> </div> -->
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <!-- preview -->
+                          </div>
+                        </div>
+                      </form>
+                      <!-- contact form -->
+                    </div>
+                  </div>
+                </div>
+                <hr>
+              </section>
+            </div>
+          </div>
+          <div class="row my-1 py-1">
+            <div class="col">
+              <mat-select #charOrder [(value)]="selectedOrderChar" (selectionChange)="orderCharBy($event, charSort.selected, charOrder.selected);"
+                class="form-control">
+                <mat-option value="name">Name</mat-option>
+                <mat-option value="japanname">Japanese Name</mat-option>
+                <mat-option value="price">Price</mat-option>
+                <mat-option value="createdAt">Date</mat-option>
+              </mat-select>
+            </div>
+            <div class="col">
+              <mat-select #charSort [(value)]="selectedSortChar" (selectionChange)="sortCharBy(charOrder.selected, $event)" class="form-control">
+                <mat-option value="asc">
+                  <i class="fa fa-sort-amount-asc grey-text"></i> Ascending</mat-option>
+                <mat-option value="desc">
+                  <i class="fa fa-sort-amount-desc grey-text"></i> Descending</mat-option>
+              </mat-select>
+            </div>
+            <div class="col">
+              <input (keydown)="searchingChar(charOrder.selected, charSort.selected, $event)" type="text" class="form-control" placeholder="{{placeholderChar}}">
+            </div>
+          </div>
+        </div>
+        <hr>
+        <ng-template #loading>
+          <div class="spinner text-center">
+            <div class="bounce1"></div>
+            <div class="bounce2"></div>
+            <div class="bounce3"></div>
+          </div>
+        </ng-template>
+        <div class="row" *ngIf="chars?.length > 0; else loading" style="height: 650px; overflow:auto;">
+          <div class="col-lg-3 col-md-6 mb-3" *ngFor="let val of chars">
+            <div class="card wow fadeInUp" style="height: 400px">
+              <div class="view overlay waves-light" (click)="detailCharModal.show()" mdbWavesEffect>
+                <img lazyLoad="{{val.fullimg}}" offset="100" class="img-fluid" alt="{{val.japanname}}">
+                <a>
+                  <div class="mask rgba-white-slight"></div>
+                </a>
+              </div>
+              <div class="card-body text-center">
+                <!--Category & Title-->
+                <a class="grey-text" (click)="detailCharModal.show()">
+                  <h5 class="h5-responsive">{{checkLength(val.japanname)}}</h5>
+                </a>
+                <h4 class="card-title h4-responsive">
+                  <strong>
+                    <a (click)="detailCharModal.show()">{{val.name}}</a>
+                  </strong>
+                </h4>
+                <!--Description-->
+                <p class="card-text text-left">{{val.descriptionEN.substr(0, 30)}} ...
+                </p>
+                <!--Card footer-->
+                <span class="float-left">
+                  <strong>
+                    <i class="fa fa-dollar grey-text"></i> {{val.price}}
+                  </strong>
+                </span>
+                <span class="float-right">
+                  <a title="Edit" (click)="editCharModal.show(); editChar(val)">
+                    <i class="fa fa-pencil grey-text"></i>
+                  </a>
+                  <a title="Delete" (click)="deleteCharModal.show()">
+                    <i class="fa fa-trash grey-text ml-3"></i>
+                  </a>
+
+                  <!-- EDIT MODAL -->
+                  <div mdbModal #editCharModal="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"
+                    [config]="{backdrop: false, ignoreBackdropClick: true}">
+                    <div class="modal-dialog modal-lg" role="document">
+                      <div class="modal-content">
+                        <div class="modal-body">
+                          <form class="text-left" [formGroup]="charForm">
+                            <!-- form input -->
+                            <div class="row">
+                              <!-- kolom1 -->
+                              <div class="col-sm-6">
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-vcard grey-text"></i> Name
+                                    <i class="fa fa-check green-text" [hidden]="charForm.get('charFormName').invalid"></i>
+                                  </label>
+                                  <input type="text" formControlName="charFormName" class="form-control">
+                                </div>
+
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-vcard grey-text"></i> Name (Japanese only)
+                                    <i class="fa fa-check green-text" [hidden]="charForm.get('charFormJapan').invalid"></i>
+                                  </label>
+                                  <input type="text" formControlName="charFormJapan" class="form-control">
+                                </div>
+                              </div>
+
+                              <!-- kolom2 -->
+                              <div class="col-sm-6">
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-pencil grey-text"></i> Description (Bahasa Indonesia)
+                                    <i class="fa fa-check green-text" [hidden]="charForm.get('charFormDescInd').invalid"></i>
+                                  </label>
+                                  <textarea class="form-control" formControlName="charFormDescInd"></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-pencil grey-text"></i> Description (English)
+                                    <i class="fa fa-check green-text" [hidden]="charForm.get('charFormDescEng').invalid"></i>
+                                  </label>
+                                  <textarea class="form-control" formControlName="charFormDescEng"></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-pencil grey-text"></i> Description (Japanese only)
+                                    <i class="fa fa-check green-text ml-1" [hidden]="charForm.get('charFormDescJpn').invalid"></i>
+                                  </label>
+                                  <textarea class="form-control" formControlName="charFormDescJpn"></textarea>
+                                </div>
+
+                              </div>
+                            </div>
+                            <!-- form input -->
+                          </form>
+                          <button class="btn btn-danger" (click)="updateChar($event, val); editCharModal.hide()" [disabled]="charForm.get('charFormName').invalid || charForm.get('charFormJapan').invalid || charForm.get('charFormDescInd').invalid || charForm.get('charFormDescEng').invalid || charForm.get('charFormDescJpn').invalid">Update</button>
+                          <button class="btn btn-outline-danger" (click)="editCharModal.hide(); resetAllForm();">Cancel</button>
+                          <button class="btn btn-outline-mdb-color waves-light" (click)="editChar(val)" mdbWavesEffect>Reset
+                            <i class="fa fa-refresh ml-1"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- EDIT MODAL -->
+
+                  <!-- DELETE MODAL -->
+                  <div mdbModal #deleteCharModal="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+                    aria-hidden="true" [config]="{backdrop: false, ignoreBackdropClick: true}">
+                    <div class="modal-dialog" role="document">
+                      <div class="modal-content">
+                        <div class="modal-body">
+                          <p>Are you sure to Delete {{val.name}}?</p>
+                          <button class="btn btn-danger" (click)="deleteChar($event, val); deleteCharModal.hide()">Yes, delete</button>
+                          <button class="btn btn-outline-danger" (click)="deleteCharModal.hide()">Cancel</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- DELETE MODAL -->
+
+                  <!-- DETAIL MODAL -->
+                  <div mdbModal #detailCharModal="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myBasicModalLabel"
+                    aria-hidden="true" [config]="{backdrop: false, ignoreBackdropClick: true}" style="overflow: auto;">
+                    <div class="modal-dialog modal-lg" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <button type="button" class="close pull-right" aria-label="Close" (click)="detailCharModal.hide()">
+                            <span aria-hidden="true">×</span>
+                          </button>
+                          <h4 class="modal-title w-100" id="myModalLabel">Detail</h4>
+                        </div>
+                        <div class="modal-body">
+                          <div class="row">
+                            <div class="col">
+                              <a href="{{val.oriimg}}" target="_blank">
+                                <img src="{{val.oriimg}}" class="img-fluid" alt="">
+                              </a>
+                            </div>
+                            <div class="col text-left">
+                              <img src="{{val.thumbimg}}" class="img-fluid text-center" alt="">
+                              <br>
+                              <hr>
+                              <p>Name : {{val.name}}</p>
+                              <p>Japanese Name : {{val.japanname}}</p>
+                              <p>Exp Multiplier : {{val.exp}}</p>
+                              <p>Money Multiplier : {{val.money}}</p>
+                              <p>Price : {{val.price}}</p>
+                              <p>Added at : {{showDate(val.createdAt) | date:'fullDate'}}</p>
+                            </div>
+                          </div>
+                          <div class="row text-left">
+                            <div class="col">
+                              <p class="green white-text">Description (Bahasa Indonesia)</p>
+                              <p>{{val.descriptionID}}</p>
+                            </div>
+                            <div class="col">
+                              <p class="blue white-text">Description (English)</p>
+                              <p>{{val.descriptionEN}}</p>
+                            </div>
+                            <div class="col">
+                              <p class="red white-text">Description (Japanese)</p>
+                              <p>{{val.descriptionJP}}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                  <!-- DETAIL MODAL -->
+
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr>
+
+  </div>
+
+</main>

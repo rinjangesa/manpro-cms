@@ -1,0 +1,287 @@
+<main class="mdb-color lighten-5 py-4">
+  <div class="container white py-4 my-4">
+    <div class="row">
+
+      <!-- COL 1.1 -->
+      <div class="col-lg-4 col-md-6 py-1 my-1">
+        <h4 class="h4-responsive my-1 py-1">Kanji Category</h4>
+        <ul class="list-group">
+          <mat-radio-group [(value)]="selectedKanjiList" (change)="kanjiChangeListener($event)" [disabled]="upload">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <mat-radio-button value="N5">JLPT N5 Kanji List (easiest)</mat-radio-button>
+              <span class="badge badge-primary badge-pill">{{dataCounted.kanjin5}}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <mat-radio-button value="N4">JLPT N4 Kanji List</mat-radio-button>
+              <span class="badge badge-primary badge-pill">{{dataCounted.kanjin4}}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <mat-radio-button value="N3">JLPT N3 Kanji List</mat-radio-button>
+              <span class="badge badge-primary badge-pill">{{dataCounted.kanjin3}}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <mat-radio-button value="N2">JLPT N2 Kanji List</mat-radio-button>
+              <span class="badge badge-primary badge-pill">{{dataCounted.kanjin2}}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <mat-radio-button value="N1">JLPT N1 Kanji List (hardest)</mat-radio-button>
+              <span class="badge badge-primary badge-pill">{{dataCounted.kanjin1}}</span>
+            </li>
+          </mat-radio-group>
+        </ul>
+      </div>
+
+      <!-- COL 1.2 -->
+      <div class="col py-1 my-1">
+        <h4 class="h4-responsive my-1 py-1">Content of JLPT Level {{selectedKanjiList}} Kanji</h4>
+        <div class="card">
+          <!-- ADD KANJI -->
+          <div class="card-header">
+            <h4 class="h4-responsive">Add Kanji</h4>
+          </div>
+          <div class="card-body">
+            <form [formGroup]="kanjiForm" (ngSubmit)="onSubmitKanji()">
+              <!-- ROW 1.1 -->
+              <div class="row">
+                <!-- COL 1.2.1 -->
+                <div class="col-sm-6">
+                  <div class="form-group">
+                    <label>Kanji Character</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiName.invalid"></i>
+                    <input type="text" class="form-control" formControlName="kanjiName" maxlength="1">
+                  </div>
+                  <div class="form-group">
+                    <label>Onyomi</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiOnyomi.invalid"></i>
+                    <input type="text" class="form-control" formControlName="kanjiOnyomi">
+                  </div>
+                  <div class="form-group">
+                    <label>Kunyomi</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiKunyomi.invalid"></i>
+                    <input type="text" class="form-control" formControlName="kanjiKunyomi">
+                  </div>
+                  <div class="form-group">
+                    <label>Animation (.JSON only)</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="!lottieConfig"></i>
+                    <i class="fa fa-times red-text ml-1 pl-1" [hidden]="!errorInput"></i>
+                    <input type="file" class="form-control" formControlName="kanjiAnimation" (change)="changeKanjiAnimation($event)" accept="application/json">
+                  </div>
+                  <div class="form-group" *ngIf="lottieConfig">
+                    <label>Preview</label>
+                    <span class="green-text ml-1 pl-1" [hidden]="!errorPreviewState">
+                      <i class="fa fa-check"></i> {{errorPreview}}</span>
+                    <span class="red-text ml-1 pl-1" [hidden]="errorPreviewState">
+                      <i class="fa fa-times"></i> {{errorPreview}}</span>
+                    <lottie-animation-view [options]="lottieConfig" [width]="200" [height]="200" (animCreated)="handleKanjiAnimation($event)">
+                    </lottie-animation-view>
+                  </div>
+                </div>
+                <!-- COL 1.2.2 -->
+                <div class="col-sm-6">
+                  <div class="form-group">
+                    <label>Stroke</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiStroke.invalid"></i>
+                    <input type="number" class="form-control" formControlName="kanjiStroke">
+                  </div>
+                  <div class="form-group">
+                    <label>Indonesia</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiIndo.invalid"></i>
+                    <textarea type="text" class="form-control" formControlName="kanjiIndo"></textarea>
+                  </div>
+                  <div class="form-group">
+                    <label>English</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiEng.invalid"></i>
+                    <textarea type="text" class="form-control" formControlName="kanjiEng"></textarea>
+                  </div>
+                  <div class="form-group">
+                    <label>Example</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiExample.invalid"></i>
+                    <textarea type="text" class="form-control" formControlName="kanjiExample"></textarea>
+                  </div>
+                  <div class="form-group">
+                    <button type="submit" class="btn btn-success waves-light" [disabled]="kanjiForm.invalid || !lottieConfig || !errorPreviewState || upload"
+                      mdbWavesEffect>Submit</button>
+                    <button class="btn btn-outline-success waves-light" (click)="resetForm()" mdbWavesEffect [disabled]="upload">Reset</button>
+                  </div>
+                  <div class="form-group" *ngIf="upload">
+                    <p>Uploading ...</p>
+                  </div>
+                  <div class="form-group" *ngIf="uploaded">
+                    <p>Uploaded!</p>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <!-- KANJI LIST -->
+          <div class="card-header">
+            <h4 class="h4-responsive">{{selectedKanjiList}} Kanji List</h4>
+          </div>
+          <div class="card-body">
+            <!-- ROW 1.2 -->
+            <ng-template #loading>
+              <div class="spinner"></div>
+            </ng-template>
+            <div class="row" *ngIf="kanjis?.length > 0; else loading" style="height: 650px; overflow:auto;">
+              <!-- COL 1.2.3 -->
+              <div class="col-sm-3 col-md-3 my-1 py-1" *ngFor="let k of kanjis">
+                <div class="card waves-light border-info" mdbWavesEffect>
+                  <div class="card-body text-center">
+                    <a>
+                      <h1 class="display-4" (click)="kanjiModal.show();">{{k.kanji}}</h1>
+                    </a>
+                    <hr>
+                    <a>
+                      <h4 class="h4-responsive" (click)="kanjiModal.show();">{{getFirstWord(k.english)}}</h4>
+                    </a>
+                  </div>
+                  <div class="card-footer">
+                    <a>
+                      <i class="fa fa-edit mx-1" (click)="editKanjiModal.show(); editKanji($event, k);"></i>
+                    </a>
+                    <a>
+                      <i class="fa fa-trash mx-1" (click)="deleteKanjiModal.show()"></i>
+                    </a>
+                  </div>
+                </div>
+                <!-- DETAIL MODAL -->
+                <div mdbModal #kanjiModal="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myBasicModalLabel"
+                  aria-hidden="true" [config]="{backdrop: false, ignoreBackdropClick: true}" style="overflow: auto;">
+                  <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close pull-right" aria-label="Close" (click)="kanjiModal.hide();">
+                          <span aria-hidden="true">×</span>
+                        </button>
+                        <h4 class="modal-title w-100 h4-responsive" id="myModalLabel">Detail</h4>
+                      </div>
+                      <div class="modal-body">
+                        <div class="row">
+                          <div class="col">
+                            <p>{{k.grade}} Kanji Character : </p>
+                            <h1 class="display-1">{{k.kanji}}</h1>
+                            <p>Total Stroke : {{k.stroke}}</p>
+                            <p>Onyomi : {{k.onyomi}}</p>
+                            <p>Kunyomi : {{k.kunyomi}}</p>
+                            <p>Meaning (in English) : {{k.english}}</p>
+                            <p>Meaning (in Indonesia) : {{k.indonesia}}</p>
+                            <p>Example : {{k.example}}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary waves-light" aria-label="Close" (click)="kanjiModal.hide();" mdbWavesEffect>Close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- DETAIL MODAL -->
+                <!-- DETAIL MODAL -->
+                <div mdbModal #editKanjiModal="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myBasicModalLabel"
+                  aria-hidden="true" [config]="{backdrop: false, ignoreBackdropClick: true}" style="overflow: auto;">
+                  <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close pull-right" aria-label="Close" (click)="editKanjiModal.hide(); resetForm();">
+                          <span aria-hidden="true">×</span>
+                        </button>
+                        <h4 class="modal-title w-100 h4-responsive" id="myModalLabel">Detail</h4>
+                      </div>
+                      <div class="modal-body">
+                        <form [formGroup]="kanjiForm">
+                          <!-- ROW 1.1 -->
+                          <div class="row">
+                            <!-- COL 1.2.1 -->
+                            <div class="col-sm-6">
+                              <div class="form-group">
+                                <label>Kanji Character</label>
+                                <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiName.invalid"></i>
+                                <input type="text" class="form-control" formControlName="kanjiName" maxlength="1">
+                              </div>
+                              <div class="form-group">
+                                <label>Onyomi</label>
+                                <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiOnyomi.invalid"></i>
+                                <input type="text" class="form-control" formControlName="kanjiOnyomi">
+                              </div>
+                              <div class="form-group">
+                                <label>Kunyomi</label>
+                                <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiKunyomi.invalid"></i>
+                                <input type="text" class="form-control" formControlName="kanjiKunyomi">
+                              </div>
+                              <div class="form-group">
+                                <label>Animation (.JSON only)</label>
+                                <i class="fa fa-check green-text ml-1 pl-1" [hidden]="!lottieConfig"></i>
+                                <i class="fa fa-times red-text ml-1 pl-1" [hidden]="!errorInput"></i>
+                                <input type="file" class="form-control" formControlName="kanjiAnimation" (change)="changeKanjiAnimation($event)" accept="application/json">
+                              </div>
+                              <div class="form-group" *ngIf="lottieConfig">
+                                <label>Preview</label>
+                                <span class="green-text ml-1 pl-1" [hidden]="!errorPreviewState">
+                                  <i class="fa fa-check"></i> {{errorPreview}}</span>
+                                <span class="red-text ml-1 pl-1" [hidden]="errorPreviewState">
+                                  <i class="fa fa-times"></i> {{errorPreview}}</span>
+                                <lottie-animation-view [options]="lottieConfig" [width]="200" [height]="200" (animCreated)="handleKanjiAnimation($event)">
+                                </lottie-animation-view>
+                              </div>
+                            </div>
+                            <!-- COL 1.2.2 -->
+                            <div class="col-sm-6">
+                              <div class="form-group">
+                                <label>Stroke</label>
+                                <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiStroke.invalid"></i>
+                                <input type="number" class="form-control" formControlName="kanjiStroke">
+                              </div>
+                              <div class="form-group">
+                                <label>Indonesia</label>
+                                <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiIndo.invalid"></i>
+                                <textarea type="text" class="form-control" formControlName="kanjiIndo"></textarea>
+                              </div>
+                              <div class="form-group">
+                                <label>English</label>
+                                <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiEng.invalid"></i>
+                                <textarea type="text" class="form-control" formControlName="kanjiEng"></textarea>
+                              </div>
+                              <div class="form-group">
+                                <label>Example</label>
+                                <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiExample.invalid"></i>
+                                <textarea type="text" class="form-control" formControlName="kanjiExample"></textarea>
+                              </div>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary waves-light" aria-label="Close" (click)="updateKanji($event, k).then(editKanjiModal.hide());"
+                          mdbWavesEffect [disabled]="kanjiForm.invalid">Save</button>
+                        <button type="button" class="btn btn-secondary waves-light" aria-label="Close" (click)="editKanjiModal.hide(); resetForm()"
+                          mdbWavesEffect>Close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- DETAIL MODAL -->
+                <!-- DELETE MODAL -->
+                <div mdbModal #deleteKanjiModal="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+                  aria-hidden="true" [config]="{backdrop: false, ignoreBackdropClick: true}">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-body">
+                        <p>Are you sure to Delete {{k.kanji}}?</p>
+                        <button class="btn btn-danger" (click)="deleteKanji($event, k); deleteKanjiModal.hide()">Yes, delete</button>
+                        <button class="btn btn-outline-danger" (click)="deleteKanjiModal.hide()">Cancel</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- DELETE MODAL -->
+              </div>
+            </div>
+            <div class="w-100"></div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>

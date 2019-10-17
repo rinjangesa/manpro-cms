@@ -1,0 +1,322 @@
+<main class="mdb-color lighten-5 py-4">
+  <div class="container white py-4 my-4">
+    <div class="row">
+
+      <div class="col-lg-4 col-md-6 py-1 my-1">
+        <h4 class="h4-responsive my-1 py-1">Kanji Category</h4>
+        <ul class="list-group" style="height: 600px; overflow: auto;">
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <mat-select [(value)]="selectedKanjiList" (selectionChange)="kanjiListChangeListener($event)" [disabled]="upload">
+              <mat-option value="N5">N5 (Easiest)</mat-option>
+              <mat-option value="N4">N4</mat-option>
+              <mat-option value="N3">N3</mat-option>
+              <mat-option value="N2">N2</mat-option>
+              <mat-option value="N1">N1 (Hardest)</mat-option>
+            </mat-select>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center" *ngIf="kanjis?.length <= 0; else kanjiLevelLoaded">
+            <div class="spinner"></div>
+          </li>
+          <ng-template #kanjiLevelLoaded>
+            <mat-radio-group [(value)]="selectedKanji" (change)="kanjiChangeListener($event)" [disabled]="upload">
+              <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let kanji of kanjis">
+                <mat-radio-button value="{{kanji.kanji}}">{{kanji.kanji}} (meaning: {{kanji.english}})</mat-radio-button>
+                <span class="badge badge-primary badge-pill">{{dataCounted[kanji.kanji]}}</span>
+              </li>
+            </mat-radio-group>
+          </ng-template>
+        </ul>
+      </div>
+
+      <div class="col py-1 my-1">
+        <h4 class="h4-responsive my-1 py-1">Content of {{selectedKanji}} Kanji ({{selectedKanjiList}})</h4>
+        <div class="card">
+          <!-- ADD KANJI QUIZ -->
+          <div class="card-header">
+            <h4 class="h4-responsive">Add Quiz About {{selectedKanji}} Kanji</h4>
+          </div>
+          <div class="card-body">
+            <form [formGroup]="kanjiForm" (ngSubmit)="onSubmitKanji()">
+              <!-- ROW 2.1 -->
+              <div class="row">
+                <!-- COL 2.2.1 -->
+                <div class="col">
+                  <div class="form-group">
+                    <label>Question Type</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiType.invalid"></i>
+                    <mat-select class="form-control" formControlName="kanjiType" (selectionChange)="kanjiQuestionTypeChangeListener($event)"
+                      [disabled]="upload">
+                      <mat-option value="text">Multiple Choice (Text)</mat-option>
+                      <mat-option value="image">Multiple choice (Image)</mat-option>
+                      <mat-option value="boolean">True or False</mat-option>
+                    </mat-select>
+                  </div>
+                  <div class="form-group" *ngIf="selectedKanjiQuestionType == 'text'">
+                    <label>Question about {{selectedKanji}}</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiQuestion.invalid"></i>
+                    <input type="text" class="form-control" formControlName="kanjiQuestion" *ngIf="selectedKanjiQuestionType == 'text'">
+                  </div>
+                  <div class="form-group" *ngIf="selectedKanjiQuestionType == 'image'">
+                    <label>Question about {{selectedKanji}} (Upload an image)</label>
+                    <span class="green-text ml-1 pl-1" [hidden]="!errorPreviewState">
+                      <i class="fa fa-check"></i> {{errorPreview}}</span>
+                    <span class="red-text ml-1 pl-1" [hidden]="errorPreviewState">
+                      <i class="fa fa-times"></i> {{errorPreview}}</span>
+                    <input type="file" class="form-control" formControlName="kanjiQuestion" (change)="fileChangeEvent($event)" accept="image/*"
+                      *ngIf="selectedKanjiQuestionType == 'image'">
+                  </div>
+                  <div class="form-group" *ngIf="selectedKanjiQuestionType == 'image'">
+                    <label>Preview & Crop</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiQuestion.invalid"></i>
+                    <div class="row">
+                      <div class="col">
+                        <image-cropper [imageChangedEvent]="imageChangedEvent" [maintainAspectRatio]="false" [aspectRatio]="4 / 3" [resizeToWidth]="300"
+                          format="png" (imageCropped)="imageCropped($event)" (imageLoaded)="imageLoaded()" (loadImageFailed)="loadImageFailed()"></image-cropper>
+                      </div>
+                      <div class="col">
+                        <img class="img-fluid" [src]="croppedImage" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group" *ngIf="selectedKanjiQuestionType == 'boolean'">
+                    <label>Question about {{selectedKanji}} (Make a statement)</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiQuestion.invalid"></i>
+                    <input type="text" class="form-control" formControlName="kanjiQuestion" *ngIf="selectedKanjiQuestionType == 'boolean'">
+                  </div>
+                  <div class="form-group" *ngIf="selectedKanjiQuestionType == 'text' || selectedKanjiQuestionType == 'image'">
+                    <label>Option 1 (Right Answer)</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiAnswer.invalid"></i>
+                    <input type="text" class="form-control" formControlName="kanjiAnswer" *ngIf="selectedKanjiQuestionType == 'text' || selectedKanjiQuestionType == 'image'">
+                  </div>
+                  <div class="form-group" *ngIf="selectedKanjiQuestionType == 'boolean'">
+                    <label>Right Answer</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiAnswer.invalid"></i>
+                    <mat-radio-group [(value)]="selectedKanjiAnswer" class="form-control" formControlName="kanjiAnswer" *ngIf="selectedKanjiQuestionType == 'boolean'">
+                      <mat-radio-button value="true">True</mat-radio-button>
+                      <br>
+                      <mat-radio-button value="false">False</mat-radio-button>
+                    </mat-radio-group>
+                  </div>
+                  <div class="form-group" *ngIf="selectedKanjiQuestionType == 'text' || selectedKanjiQuestionType == 'image'">
+                    <label>Option 2</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiOption1.invalid"></i>
+                    <input type="text" class="form-control" formControlName="kanjiOption1" *ngIf="selectedKanjiQuestionType == 'text' || selectedKanjiQuestionType == 'image'">
+                  </div>
+                  <div class="form-group" *ngIf="selectedKanjiQuestionType == 'text' || selectedKanjiQuestionType == 'image'">
+                    <label>Option 3</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiOption2.invalid"></i>
+                    <input type="text" class="form-control" formControlName="kanjiOption2" *ngIf="selectedKanjiQuestionType == 'text' || selectedKanjiQuestionType == 'image'">
+                  </div>
+                  <div class="form-group" *ngIf="selectedKanjiQuestionType == 'text' || selectedKanjiQuestionType == 'image'">
+                    <label>Option 4</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiOption3.invalid"></i>
+                    <input type="text" class="form-control" formControlName="kanjiOption3" *ngIf="selectedKanjiQuestionType == 'text' || selectedKanjiQuestionType == 'image'">
+                  </div>
+                  <div class="form-group">
+                    <label>Correction or Explanation</label>
+                    <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiCorrection.invalid"></i>
+                    <textarea type="text" class="form-control" formControlName="kanjiCorrection"></textarea>
+                  </div>
+                  <div class="form-group">
+                    <button type="submit" class="btn btn-success waves-light" [disabled]="kanjiForm.invalid || upload || uploaded" mdbWavesEffect>Submit</button>
+                    <button class="btn btn-outline-success waves-light" (click)="resetForm()" mdbWavesEffect>Reset</button>
+                  </div>
+                  <div class="form-group" *ngIf="upload">
+                    <p>Uploading ...</p>
+                  </div>
+                  <div class="form-group" *ngIf="uploaded">
+                    <p>Uploaded!</p>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <!-- KANJI LIST -->
+          <div class="card-header">
+            <h4 class="h4-responsive">Question About {{selectedKanji}} Kanji List</h4>
+          </div>
+          <div class="card-body">
+            <!-- ROW 1.2 -->
+            <div *ngIf="kanjiQuizzes?.length > 0; else loading" style="height: 650px; overflow:auto;">
+              <!-- COL 1.2.3 -->
+              <div *ngFor="let kq of kanjiQuizzes">
+                <div class="card waves-light border border-info mt-2 pt-2" mdbWavesEffect>
+                  <a>
+                    <div class="card-body text-left" (click)="kanjiQuizModal.show();">
+                      <p>Question Type : {{kq.type.charAt(0).toUpperCase()}}{{kq.type.slice(1)}}</p>
+                      <p *ngIf="kq.type == 'text' || kq.type == 'boolean'">{{kq.question}}</p>
+                      <img src="{{kq.question}}" class="img-fluid" *ngIf="kq.type == 'image'">
+                    </div>
+                  </a>
+                  <div class="card-footer">
+                    <a (click)="kanjiEditQuizModal.show(); setEditKanji(kq);">
+                      <i class="fa fa-edit mx-1 px-1"></i>
+                    </a>
+                    <a (click)="kanjiDeleteQuizModal.show();">
+                      <i class="fa fa-trash mx-1 px-1"></i>
+                    </a>
+                  </div>
+                </div>
+                <!-- EDIT MODAL -->
+                <div mdbModal #kanjiEditQuizModal="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myBasicModalLabel"
+                  aria-hidden="true" [config]="{backdrop: false, ignoreBackdropClick: true}" style="overflow: auto">
+                  <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close pull-right" aria-label="Close" (click)="kanjiEditQuizModal.hide(); resetForm();">
+                          <span aria-hidden="true">×</span>
+                        </button>
+                        <h4 class="modal-title w-100 h4-responsive" id="myModalLabel">Detail</h4>
+                      </div>
+                      <div class="modal-body">
+                        <form [formGroup]="kanjiForm">
+                          <div class="form-group" *ngIf="kq.type == 'text'">
+                            <label>Question about {{kq.kanji}}</label>
+                            <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiQuestion.invalid"></i>
+                            <input type="text" class="form-control" formControlName="kanjiQuestion" *ngIf="kq.type == 'text'">
+                          </div>
+                          <div class="form-group" *ngIf="kq.type == 'image'">
+                            <label>Question about {{kq.kanji}} (Upload an image)</label>
+                            <span class="green-text ml-1 pl-1" [hidden]="!errorPreviewState">
+                              <i class="fa fa-check"></i> {{errorPreview}}</span>
+                            <span class="red-text ml-1 pl-1" [hidden]="errorPreviewState">
+                              <i class="fa fa-times"></i> {{errorPreview}}</span>
+                            <input type="file" class="form-control" (change)="fileChangeEvent($event)" accept="image/*" *ngIf="kq.type == 'image'">
+                          </div>
+                          <div class="form-group" *ngIf="kq.type == 'image'">
+                            <label>Preview & Crop</label>
+                            <i class="fa fa-check green-text ml-1 pl-1" [hidden]="croppedImage"></i>
+                            <div class="row">
+                              <div class="col">
+                                <image-cropper [imageChangedEvent]="imageChangedEvent" [maintainAspectRatio]="false" [aspectRatio]="4 / 3" [resizeToWidth]="300"
+                                  format="png" (imageCropped)="imageCropped($event)" (imageLoaded)="imageLoaded()" (loadImageFailed)="loadImageFailed()"></image-cropper>
+                              </div>
+                              <div class="col">
+                                <img class="img-fluid" [src]="croppedImage" />
+                              </div>
+                            </div>
+                          </div>
+                          <div class="form-group" *ngIf="kq.type == 'boolean'">
+                            <label>Question about {{kq.kanji}} (Make a statement)</label>
+                            <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiQuestion.invalid"></i>
+                            <input type="text" class="form-control" formControlName="kanjiQuestion" *ngIf="kq.type == 'boolean'">
+                          </div>
+                          <div class="form-group" *ngIf="kq.type == 'text' || kq.type == 'image'">
+                            <label>Option 1 (Right Answer)</label>
+                            <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiAnswer.invalid"></i>
+                            <input type="text" class="form-control" formControlName="kanjiAnswer" *ngIf="kq.type == 'text' || kq.type == 'image'">
+                          </div>
+                          <div class="form-group" *ngIf="kq.type == 'boolean'">
+                            <label>Right Answer</label>
+                            <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiAnswer.invalid"></i>
+                            <mat-radio-group [(value)]="selectedKanjiAnswer" class="form-control" formControlName="kanjiAnswer" *ngIf="kq.type == 'boolean'">
+                              <mat-radio-button value="true">True</mat-radio-button>
+                              <br>
+                              <mat-radio-button value="false">False</mat-radio-button>
+                            </mat-radio-group>
+                          </div>
+                          <div class="form-group" *ngIf="kq.type == 'text' || kq.type == 'image'">
+                            <label>Option 2</label>
+                            <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiOption1.invalid"></i>
+                            <input type="text" class="form-control" formControlName="kanjiOption1" *ngIf="kq.type == 'text' || kq.type == 'image'">
+                          </div>
+                          <div class="form-group" *ngIf="kq.type == 'text' || kq.type == 'image'">
+                            <label>Option 3</label>
+                            <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiOption2.invalid"></i>
+                            <input type="text" class="form-control" formControlName="kanjiOption2" *ngIf="kq.type == 'text' || kq.type == 'image'">
+                          </div>
+                          <div class="form-group" *ngIf="kq.type == 'text' || kq.type == 'image'">
+                            <label>Option 4</label>
+                            <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiOption3.invalid"></i>
+                            <input type="text" class="form-control" formControlName="kanjiOption3" *ngIf="kq.type == 'text' || kq.type == 'image'">
+                          </div>
+                          <div class="form-group">
+                            <label>Correction or Explanation</label>
+                            <i class="fa fa-check green-text ml-1 pl-1" [hidden]="kanjiCorrection.invalid"></i>
+                            <textarea type="text" class="form-control" formControlName="kanjiCorrection"></textarea>
+                          </div>
+                        </form>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary waves-light" aria-label="Close" (click)="updateKanji($event, kq).then(kanjiEditQuizModal.hide());"
+                          mdbWavesEffect>Save</button>
+                        <button type="button" class="btn btn-secondary waves-light" aria-label="Close" (click)="kanjiEditQuizModal.hide(); resetForm();"
+                          mdbWavesEffect>Cancel</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- EDIT MODAL -->
+                <!-- DELETE MODAL -->
+                <div mdbModal #kanjiDeleteQuizModal="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myBasicModalLabel"
+                  aria-hidden="true" [config]="{backdrop: false, ignoreBackdropClick: true}" style="overflow: auto">
+                  <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close pull-right" aria-label="Close" (click)="kanjiDeleteQuizModal.hide(); resetForm();">
+                          <span aria-hidden="true">×</span>
+                        </button>
+                        <h4 class="modal-title w-100 h4-responsive" id="myModalLabel">Warning</h4>
+                      </div>
+                      <div class="modal-body">
+                        <p>Are you sure to Delete this quiz?</p>
+                      </div>
+                      <div class="modal-footer">
+                        <button class="btn btn-danger" (click)="deleteKanji($event, kq); kanjiDeleteQuizModal.hide()">Yes, delete</button>
+                        <button type="button" class="btn btn-secondary waves-light" aria-label="Close" (click)="kanjiDeleteQuizModal.hide(); resetForm();"
+                          mdbWavesEffect>Close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- DELETE MODAL -->
+                <!-- DETAIL MODAL -->
+                <div mdbModal #kanjiQuizModal="mdb-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myBasicModalLabel"
+                  aria-hidden="true" [config]="{backdrop: false, ignoreBackdropClick: true}" style="overflow: auto">
+                  <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close pull-right" aria-label="Close" (click)="kanjiQuizModal.hide(); resetForm();">
+                          <span aria-hidden="true">×</span>
+                        </button>
+                        <h4 class="modal-title w-100 h4-responsive" id="myModalLabel">Detail</h4>
+                      </div>
+                      <div class="modal-body">
+                        <div class="row">
+                          <div class="col">
+                            <p>{{kq.kanji}}'s Question </p>
+                            <p>Question Type : {{kq.type.charAt(0).toUpperCase()}}{{kq.type.slice(1)}}</p>
+                            <p>JLPT Level : {{kq.grade}}</p>
+                            <p *ngIf="kq.type == 'text' || kq.type == 'boolean'">{{kq.question}}</p>
+                            <img src="{{kq.question}}" class="img-fluid" *ngIf="kq.type == 'image'">
+                            <p *ngIf="kq.type == 'text' || kq.type == 'image'">Option 1 (Right Answer) : {{kq.answer}}</p>
+                            <p *ngIf="kq.type == 'text' || kq.type == 'image'">Option 2 : {{kq.option1}}</p>
+                            <p *ngIf="kq.type == 'text' || kq.type == 'image'">Option 3 : {{kq.option2}}</p>
+                            <p *ngIf="kq.type == 'text' || kq.type == 'image'">Option 4 : {{kq.option3}}</p>
+                            <p *ngIf="kq.type == 'boolean'">Right Answer : {{kq.answer}}</p>
+                            <p>Correction or Explanation : {{kq.correction}}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary waves-light" aria-label="Close" (click)="kanjiQuizModal.hide(); resetForm();"
+                          mdbWavesEffect>Close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- DETAIL MODAL -->
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<ng-template #loading>
+  <div class="spinner"></div>
+</ng-template>

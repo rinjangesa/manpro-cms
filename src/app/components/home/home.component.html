@@ -1,0 +1,34 @@
+<ng-template #navbar>
+  <mdb-navbar SideClass="navbar navbar-expand-lg navbar-dark  mdb-color lighten-1" [containerInside]="true">
+    <links>
+      <ul class="navbar-nav mx-auto">
+        <li class="nav-item active waves-light" mdbWavesEffect>
+          <button [ngx-scroll-to]="'#welcome'" class="btn btn-elegant btn-sm align-middle waves-light" mdbWavesEffect type="button">Welcome</button>
+        </li>
+        <li class="nav-item waves-light" mdbWavesEffect>
+          <button [ngx-scroll-to]="'#list_user'" class="btn btn-elegant btn-sm align-middle waves-light" mdbWavesEffect type="button">User List</button>
+        </li>
+      </ul>
+    </links>
+  </mdb-navbar>
+</ng-template>
+
+<main class="text-center mdb-color lighten-5 py-4">
+  <div class="container white py-4 my-4">
+
+    <!-- <div *ngIf="navbarJumper else navbar"></div> -->
+
+    <hr id="welcome" class="py-4">
+
+    <section>
+      
+      <h1 class="text-center">Welcome.</h1>
+      <p>Click <b>User</b> to create, update and delete user.</p>
+      <p>Click <b>Quiz -> Material</b> to create, update and delete material.</p>
+      <p>Click <b>Quiz -> Question</b> to create, update and delete quiz.</p>
+      <p>Click <b>Shop</b> to create, update and delete character, wallpaper, and decoration.</p>
+      <p>Click <b>Event</b> to create, update and delete event.</p>
+    </section>
+
+  </div>
+</main>

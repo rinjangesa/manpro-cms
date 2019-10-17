@@ -1,0 +1,358 @@
+<main class="text-center mdb-color lighten-5 py-4">
+
+  <div class="container white py-4 my-4">
+
+    <hr class="pt-4">
+
+    <section>
+      <div class="container">
+        <h1 class="h1-responsive">
+          User List
+        </h1>
+        <div class="form-group">
+          <div class="row">
+            <div class="col">
+              <button type="button" class="btn btn-success waves-light my-1" (click)="toggleAdding()" mdbWavesEffect>
+                <span *ngIf="!addState">Show</span>
+                <span *ngIf="addState">Hide</span> Add User
+              </button>
+              <section class="mt-3" *ngIf="addState">
+                <div class="container">
+                  <div class="row">
+                    <div class="col">
+                      <!-- contact form -->
+                      <form class="text-left" [formGroup]="userForm" (ngSubmit)="onSubmit()">
+                        <div class="card">
+                          <div class="card-body">
+                            <div class="row">
+                              <!-- kolom1 -->
+                              <div class="col-sm-6">
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-vcard grey-text"></i> Name
+                                    <i class="fa fa-check green-text" [hidden]="userForm.get('userFormName').invalid"></i>
+                                  </label>
+                                  <input type="text" formControlName="userFormName" class="form-control">
+                                </div>
+
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-envelope grey-text"></i> Email
+                                    <i class="fa fa-check green-text" [hidden]="userForm.get('userFormEmail').invalid"></i>
+                                  </label>
+                                  <input type="email" formControlName="userFormEmail" class="form-control">
+                                </div>
+
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-phone grey-text"></i> Phone Number
+                                    <i class="fa fa-check green-text" [hidden]="userForm.get('userFormNumber').invalid"></i>
+                                  </label>
+                                  <input type="text" formControlName="userFormNumber" class="form-control" minlength="11" maxlength="12">
+                                </div>
+
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-user grey-text"></i> Gender
+                                  </label>
+                                  <br>
+                                  <mat-radio-group formControlName="userFormGender">
+                                    <mat-radio-button value="M" checked>Male</mat-radio-button>
+                                    <br>
+                                    <mat-radio-button value="F">Female</mat-radio-button>
+                                  </mat-radio-group>
+                                </div>
+                              </div>
+
+                              <!-- kolom2 -->
+                              <div class="col-sm-6">
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-building grey-text"></i> Institute
+                                  </label>
+                                  <br>
+                                  <mat-radio-group formControlName="userFormInstitute">
+                                    <mat-radio-button value="Politeknik Negeri Malang">Politeknik Negeri Malang</mat-radio-button>
+                                    <br>
+                                    <mat-radio-button #lainnya>Other</mat-radio-button>
+                                    <br>
+                                    <input type="text" class="form-control" formControlName="userFormInstitute" *ngIf="lainnya.checked">
+                                  </mat-radio-group>
+                                </div>
+
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-users grey-text"></i> Role
+                                  </label>
+                                  <br>
+                                  <mat-radio-group formControlName="userFormRole">
+                                    <mat-radio-button value="Student" checked>Student</mat-radio-button>
+                                    <br>
+                                    <mat-radio-button value="Teacher">Teacher</mat-radio-button>
+                                    <br>
+                                    <mat-radio-button value="Admin">Admin</mat-radio-button>
+                                  </mat-radio-group>
+                                </div>
+
+                                <div class="form-group text-center">
+                                  <button type="submit" [disabled]="userForm.invalid || loadingUpdate || uploading" class="btn btn-unique waves-light" mdbWavesEffect>Send
+                                    <i class="fa fa-paper-plane-o ml-1"></i>
+                                  </button>
+                                  <button (click)="resetForm()" class="btn btn-outline-unique waves-light" mdbWavesEffect>Reset
+                                    <i class="fa fa-refresh ml-1"></i>
+                                  </button>
+                                </div>
+                                <!--Card Warning-->
+                                <div class="card red lighten-1 text-center z-depth-2" *ngIf="errorSubmit">
+                                  <div class="card-body">
+                                    <p class="white-text mb-0">{{errorSubmit}}</p>
+                                  </div>
+                                </div>
+                                <!--/.Card Warning-->
+                                <!--Card Success-->
+                                <div class="card info-color text-center z-depth-2" *ngIf="succesSubmit">
+                                  <div class="card-body">
+                                    <p class="white-text mb-0">{{succesSubmit}}</p>
+                                  </div>
+                                </div>
+                                <!--/.Card Success-->
+                                <!--Card Warning-->
+                                <div class="card warning-color text-center z-depth-2" *ngIf="uploading">
+                                  <div class="card-body">
+                                    <p class="white-text mb-0">Please wait ...</p>
+                                  </div>
+                                </div>
+                                <!--/.Card Warning-->
+                              </div>
+                            </div>
+
+                          </div>
+                        </div>
+                      </form>
+                      <!-- contact form -->
+                    </div>
+                  </div>
+                </div>
+                <hr>
+              </section>
+            </div>
+          </div>
+        </div>
+        <ng-template #loading>
+          <div class="spinner text-center">
+            <div class="bounce1"></div>
+            <div class="bounce2"></div>
+            <div class="bounce3"></div>
+          </div>
+        </ng-template>
+        <div class="row">
+          <div class="col">
+
+            <div class="form-group">
+              <input (keyup)="applyFilter($event.target.value)" type="text" class="form-control" placeholder="Search by name, email, institute">
+            </div>
+            <hr>
+            <div *ngIf="succesUpdate">
+              <div class="card green">
+                <h4 class="h4-responsive white-text animated pulse py-2 my-2">
+                  <i class="fa fa-check-circle prefix"></i> {{succesUpdate}}</h4>
+              </div>
+              <hr>
+            </div>
+            <div *ngIf="errorUpdate">
+              <div class="card red">
+                <h4 class="h4-responsive white-text animated pulse py-2 my-2">
+                  <i class="fa fa-times-circle prefix"></i> {{errorUpdate}}</h4>
+              </div>
+              <hr>
+            </div>
+            <div *ngIf="loadingUpdate">
+              <div class="card yellow">
+                <h4 class="h4-responsive white-text animated pulse infinite py-2 my-2">
+                  <i class="fa fa-info-circle prefix"></i> {{loadingUpdate}}</h4>
+              </div>
+              <hr>
+            </div>
+            <mat-table class="text-left" [dataSource]="dataSource" matSort>
+
+              <!-- Action Column -->
+              <ng-container matColumnDef="action">
+                <mat-header-cell *matHeaderCellDef mat-sort-header>Join Date</mat-header-cell>
+                <mat-cell *matCellDef="let user async">
+                  <span class="mobile-label">Action :</span>
+                  <button type="button" class="btn btn-info btn-sm waves-light" (click)="setEditForm(user); editUserModal.show()" [disabled]="loadingUpdate || uploading || user.email == 'fadhlishobirin@gmail.com'"
+                    mdbWavesEffect><i class="fa fa-edit fa-2x"></i></button>
+                  <button type="button" class="btn btn-danger btn-sm waves-light" (click)="deleteUserModal.show()" [disabled]="loadingUpdate || uploading || user.role == 'Admin'"
+                    mdbWavesEffect><i class="fa fa-trash fa-2x"></i></button>
+
+                  <!-- edit modal -->
+                  <div mdbModal #editUserModal="mdb-modal" class="modal fade" [config]="{backdrop: false, ignoreBackdropClick: true}">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h4 class="h4-responsive blue-text">
+                            <i class="fa fa-user prefix"></i>
+                            <strong> Update user {{user.username}}</strong>
+                          </h4>
+                        </div>
+                        <div class="modal-body text-center">
+                          <form class="text-left" [formGroup]="userForm">
+                            <div class="row">
+                              <!-- kolom1 -->
+                              <div class="col-sm-6">
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-vcard grey-text"></i> Name
+                                    <i class="fa fa-check green-text" [hidden]="userForm.get('userFormName').invalid"></i>
+                                  </label>
+                                  <input type="text" formControlName="userFormName" class="form-control">
+                                </div>
+
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-envelope grey-text"></i> Email
+                                    <i class="fa fa-check green-text" [hidden]="userForm.get('userFormEmail').invalid"></i>
+                                  </label>
+                                  <input type="email" formControlName="userFormEmail" class="form-control">
+                                </div>
+
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-phone grey-text"></i> Phone Number
+                                    <i class="fa fa-check green-text" [hidden]="userForm.get('userFormNumber').invalid"></i>
+                                  </label>
+                                  <input type="text" formControlName="userFormNumber" class="form-control" minlength="11" maxlength="12">
+                                </div>
+
+                              </div>
+
+                              <!-- kolom2 -->
+                              <div class="col-sm-6">
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-building grey-text"></i> Institute
+                                  </label>
+                                  <br>
+                                  <mat-radio-group formControlName="userFormInstitute">
+                                    <mat-radio-button value="{{user.institute}}">{{user.institute}}</mat-radio-button>
+                                    <br>
+                                    <mat-radio-button #lainnya>Other</mat-radio-button>
+                                    <br>
+                                    <input type="text" class="form-control" formControlName="userFormInstitute" *ngIf="lainnya.checked">
+                                  </mat-radio-group>
+                                </div>
+
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-user grey-text"></i> Gender
+                                  </label>
+                                  <br>
+                                  <mat-radio-group formControlName="userFormGender">
+                                    <mat-radio-button value="M" checked>Male</mat-radio-button>
+                                    <br>
+                                    <mat-radio-button value="F">Female</mat-radio-button>
+                                  </mat-radio-group>
+                                </div>
+
+                                <div class="form-group">
+                                  <label>
+                                    <i class="fa fa-users grey-text"></i> Role
+                                  </label>
+                                  <br>
+                                  <mat-radio-group formControlName="userFormRole">
+                                    <mat-radio-button value="Student" checked>Student</mat-radio-button>
+                                    <br>
+                                    <mat-radio-button value="Teacher">Teacher</mat-radio-button>
+                                    <br>
+                                    <mat-radio-button value="Admin">Admin</mat-radio-button>
+                                  </mat-radio-group>
+                                </div>
+
+                              </div>
+                            </div>
+                          </form>
+                          <button class="btn btn-danger" (click)="updateUser($event, user).then(editUserModal.hide());">Update</button>
+                          <button class="btn btn-outline-danger" (click)="editUserModal.hide(); resetForm();">Cancel</button>
+                          <button class="btn btn-outline-info" (click)="setEditForm(user);">Reset</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- delete modal -->
+                  <div mdbModal #deleteUserModal="mdb-modal" class="modal fade" [config]="{backdrop: false, ignoreBackdropClick: true}">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h4 class="h4-responsive red-text">
+                            <i class="fa fa-info-circle prefix"></i>
+                            <strong> Warning (Cannot undo)</strong>
+                          </h4>
+                        </div>
+                        <div class="modal-body text-center">
+                          <h4 class="h4-responsive">Are you sure to Delete {{user.username}}?</h4>
+                          <button class="btn btn-danger" (click)="deleteUser($event, user).then(deleteUserModal.hide());">Yes, delete</button>
+                          <button class="btn btn-outline-danger" (click)="deleteUserModal.hide()">Cancel</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </mat-cell>
+              </ng-container>
+
+              <ng-container matColumnDef="joindate">
+                <mat-header-cell *matHeaderCellDef mat-sort-header>Join Date</mat-header-cell>
+                <mat-cell *matCellDef="let user async">
+                  <span class="mobile-label">Joined at :</span>
+                  {{user.joindate.toDate() | date}}
+                </mat-cell>
+              </ng-container>
+
+              <ng-container matColumnDef="username">
+                <mat-header-cell *matHeaderCellDef mat-sort-header>NAME</mat-header-cell>
+                <mat-cell *matCellDef="let user async">
+                  <span class="mobile-label">Name :</span>
+                  {{user.username}}
+                </mat-cell>
+              </ng-container>
+
+              <ng-container matColumnDef="email">
+                <mat-header-cell *matHeaderCellDef mat-sort-header>EMAIL</mat-header-cell>
+                <mat-cell *matCellDef="let user async">
+                  <span class="mobile-label">Email :</span>
+                  {{user.email}}
+                </mat-cell>
+              </ng-container>
+
+              <ng-container matColumnDef="phonenumber">
+                <mat-header-cell *matHeaderCellDef mat-sort-header>PHONE NUMBER</mat-header-cell>
+                <mat-cell *matCellDef="let user async">
+                  <span class="mobile-label">Institute :</span>
+                  {{user.phonenumber}}
+                </mat-cell>
+              </ng-container>
+
+              <ng-container matColumnDef="role">
+                <mat-header-cell *matHeaderCellDef mat-sort-header>ROLE</mat-header-cell>
+                <mat-cell *matCellDef="let user async">
+                  <span class="mobile-label">Role :</span>
+                  {{user.role}}
+                </mat-cell>
+              </ng-container>
+
+              <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+              <mat-row *matRowDef="let user; columns: displayedColumns;">
+              </mat-row>
+            </mat-table>
+
+            <mat-paginator #paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 50, 100, 200, users_length]" [showFirstLastButtons]="true">
+            </mat-paginator>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr>
+
+  </div>
+
+</main>
