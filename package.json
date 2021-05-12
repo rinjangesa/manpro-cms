@@ -27,7 +27,7 @@
     "@tinymce/tinymce-angular": "^2.0.0",
     "angular-bootstrap-md": "^6.1.2",
     "angularfire2": "^5.0.0-rc.10",
-    "chart.js": "^2.5.0",
+    "chart.js": "^2.9.4",
     "cloudinary-core": "^2.5.0",
     "core-js": "^2.5.4",
     "firebase": "^5.0.4",
